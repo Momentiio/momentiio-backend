@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    links:
+      - db
+      - redis
+    volumes:
+      - .:/code
+      - ipython:/root/.ipython/profile_default
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+  db:
+    image: postgres:9.6
+    restart: always
+    volumes:
+      - postgresdata:/data/postgres
+  redis:
+    image: redis:latest
+
+volumes:
+  ipython:
+  postgresdata:
