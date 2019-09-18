@@ -30,21 +30,17 @@ class User(BaseModel, AbstractUser):
     """Custom user model."""
 
 
-class Photo(BaseModel):
-    """A photo posted by a user."""
-
+class Post(BaseModel):
     user = models.ForeignKey(
         User, verbose_name="Created By", on_delete=models.CASCADE, related_name="user_photos"
     )
-
-    caption = models.TextField()
+    caption = models.TextField(max_length=500, blank=True)
     photo = ProcessedImageField(
         upload_to="user_photos",
         format="JPEG",
         options={"quality": 90},
         processors=[ResizeToFit(width=1200, height=1200)],
     )
-
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
@@ -61,7 +57,7 @@ class Like(BaseModel):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="likes")
     photo = models.ForeignKey(
-        Photo, on_delete=models.CASCADE, related_name="likes")
+        Post, on_delete=models.CASCADE, related_name="likes")
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -78,7 +74,7 @@ class Comment(BaseModel):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="comments")
     photo = models.ForeignKey(
-        Photo, on_delete=models.CASCADE, related_name="comments")
+        Post, on_delete=models.CASCADE, related_name="comments")
 
     content = models.TextField(max_length=2000)
 

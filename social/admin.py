@@ -4,9 +4,9 @@ from django.contrib.auth.admin import UserAdmin
 from . import models
 
 
-@admin.register(models.Photo)
-class PhotoAdmin(admin.ModelAdmin):
-    """Admin for photos."""
+@admin.register(models.Post)
+class PostAdmin(admin.ModelAdmin):
+    """Admin for posts."""
 
 
 @admin.register(models.User)
