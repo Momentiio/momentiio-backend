@@ -10,19 +10,22 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('social', '0003_auto_20190918_0826'),
+        ('social', '0002_auto_20190918_0826'),
     ]
 
     operations = [
         migrations.CreateModel(
             name='Post',
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('id', models.UUIDField(default=uuid.uuid4,
+                                        editable=False, primary_key=True, serialize=False)),
                 ('caption', models.TextField(blank=True, max_length=500)),
-                ('photo', imagekit.models.fields.ProcessedImageField(upload_to='user_photos')),
+                ('photo', imagekit.models.fields.ProcessedImageField(
+                    upload_to='user_photos')),
                 ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('date_updated', models.DateTimeField(auto_now=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_photos', to=settings.AUTH_USER_MODEL, verbose_name='Created By')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                           related_name='user_photos', to=settings.AUTH_USER_MODEL, verbose_name='Created By')),
             ],
             options={
                 'ordering': ['-date_created'],
@@ -31,12 +34,14 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='comment',
             name='photo',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='social.Post'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='social.Post'),
         ),
         migrations.AlterField(
             model_name='like',
             name='photo',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='likes', to='social.Post'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name='likes', to='social.Post'),
         ),
         migrations.DeleteModel(
             name='Photo',

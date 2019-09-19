@@ -8,21 +8,18 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
-    dependencies = [
-        ('social', '0001_initial'),
-    ]
-
     operations = [
         migrations.CreateModel(
             name='Photo',
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('id', models.UUIDField(default=uuid.uuid4,
+                                        editable=False, primary_key=True, serialize=False)),
                 ('caption', models.TextField()),
                 ('photo', imagekit.models.fields.ProcessedImageField(upload_to='photos')),
                 ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('date_updated', models.DateTimeField(auto_now=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='photos', to=settings.AUTH_USER_MODEL, verbose_name='Created By')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                           related_name='photos', to=settings.AUTH_USER_MODEL, verbose_name='Created By')),
             ],
             options={
                 'ordering': ['-date_created'],

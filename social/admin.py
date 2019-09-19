@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 
 from . import models
 
@@ -7,11 +6,6 @@ from . import models
 @admin.register(models.Post)
 class PostAdmin(admin.ModelAdmin):
     """Admin for posts."""
-
-
-@admin.register(models.User)
-class CustomUserAdmin(UserAdmin):
-    """Custom user admin."""
 
 
 @admin.register(models.Like)

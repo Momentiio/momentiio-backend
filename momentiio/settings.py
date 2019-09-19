@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'graphene_django',
     'imagekit',
     'api',
-    'social'
+    'social',
+    'user'
 ]
 
 MIDDLEWARE = [
@@ -102,7 +103,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'social.User'
+AUTH_USER_MODEL = 'user.User'
 
 
 # Internationalization
