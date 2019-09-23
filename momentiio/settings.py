@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'graphene_django',
     'imagekit',
     'api',
+    'interests',
+    'orderable',
     'social',
     'user'
 ]
