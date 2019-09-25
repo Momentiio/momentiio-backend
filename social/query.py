@@ -1,17 +1,18 @@
 from django.db import models
+from django.contrib.auth.models import User
 import graphene
 from graphene import NonNull, ObjectType, List, Field, String, Union
 from graphene_django import DjangoObjectType
 from . import models
 
 
-class User(DjangoObjectType):
+class UserType(DjangoObjectType):
 
     class Meta:
-        model = models.User
-        only_fields = [
+        model = User
+        fields = [
             "id",
-            "username"
+            "username",
         ]
 
 

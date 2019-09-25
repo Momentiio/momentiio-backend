@@ -1,12 +1,12 @@
 from django.db import models
 from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFit
-from user.models import User, BaseModel
+from user.models import Profile, BaseModel
 
 
 class Post(BaseModel):
     user = models.ForeignKey(
-        User, verbose_name="Created By", on_delete=models.CASCADE, related_name="user_photos"
+        Profile, verbose_name="Created By", on_delete=models.CASCADE, related_name="user_photos"
     )
     caption = models.TextField(max_length=500, blank=True)
     photo = ProcessedImageField(
@@ -29,7 +29,7 @@ class Post(BaseModel):
 
 class Like(BaseModel):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="likes")
+        Profile, on_delete=models.CASCADE, related_name="likes")
     photo = models.ForeignKey(
         Post, on_delete=models.CASCADE, related_name="likes")
     date_created = models.DateTimeField(auto_now_add=True)
@@ -46,7 +46,7 @@ class Comment(BaseModel):
     """A comment on a post."""
 
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="comments")
+        Profile, on_delete=models.CASCADE, related_name="comments")
     photo = models.ForeignKey(
         Post, on_delete=models.CASCADE, related_name="comments")
 

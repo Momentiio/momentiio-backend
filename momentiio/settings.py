@@ -39,11 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'graphene_django',
     'imagekit',
+    'address',
     'api',
     'interests',
     'orderable',
     'social',
-    'user'
+    'user',
 ]
 
 MIDDLEWARE = [
@@ -104,8 +105,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-AUTH_USER_MODEL = 'user.User'
 
 
 # Internationalization
