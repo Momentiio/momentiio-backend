@@ -1,18 +1,30 @@
-# from django.contrib import admin
-# from django.contrib.auth.admin import UserAdmin
-# from . import models
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
+
+from address.models import Address
+from .models import Profile
 
 
-# @admin.register(models.Profile)
-# class UserProfileInline(admin.ModelAdmin):
-#     model = models.Profile
-#     can_delete = True
-#     verbose_name = models.Profile
+class ProfileInline(admin.StackedInline):
+    model = Profile
+    can_delete = False
+    verbose_name_plural = 'Profile'
+    fk_name = 'user'
 
 
-# class ProfileAdmin(admin.ModelAdmin):
-#     inlines = (UserProfileInline)
+class AddressInline(admin.StackedInline):
+    model = Address
 
 
-# admin.site.unregister(models.Profile)
-# admin.site.register(models.Profile, UserAdmin)
+class CustomUserAdmin(UserAdmin):
+    inlines = (ProfileInline, )
+
+    def get_inline_instances(self, request, obj=None):
+        if not obj:
+            return list()
+        return super(CustomUserAdmin, self).get_inline_instances(request, obj)
+
+
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
