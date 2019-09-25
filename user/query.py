@@ -3,7 +3,30 @@ from django.contrib.auth.models import models
 import graphene
 from graphene import NonNull, ObjectType, List, Field, String, Union
 from graphene_django import DjangoObjectType
+from address.models import Country
 from . import models
+
+
+class CountryType(DjangoObjectType):
+    class Meta:
+        model = Country
+        only_fields = {
+            "iso_code",
+            "name"
+        }
+
+
+class UserAddress(DjangoObjectType):
+    class Meta:
+        model = models.Address
+        only_fields = {
+            "address_line1",
+            "address_line2",
+            "postal_code",
+            "city",
+            "state_province",
+            "country"
+        }
 
 
 class User(DjangoObjectType):
@@ -23,11 +46,12 @@ class ProfileType(DjangoObjectType):
         model = models.Profile
         only_fields = {
             "user",
+            "profile_avatar",
             "bio",
             "location",
             "birth_date",
             "interests",
-            "postal_address"
+            "address"
         }
 
 
