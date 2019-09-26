@@ -76,3 +76,17 @@ class UserQuery(ObjectType):
 
     def resolve_user(self, info, user_id):
         return models.Profile.objects.get(pk=user_id)
+
+
+class UserAuth(ObjectType):
+    me = graphene.Field(User)
+    users = graphene.List(User)
+
+    def resolve_users(self, info):
+        return get_user_model().objects.all()
+
+    def resolve_me(self, info):
+        user = info.context.user
+        if user.is_anonymous:
+            raise Exception('Authentication Failure!')
+        return user
