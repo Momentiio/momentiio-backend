@@ -38,9 +38,6 @@ class Profile(BaseModel):
     location = models.CharField(max_length=30, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     interests = models.ManyToManyField(Interest)
-    address = models.ForeignKey(
-        Address, on_delete=models.CASCADE, blank=True, null=True)
-    follows = models.ManyToManyField('Profile', related_name='followed_by')
 
     def __str__(self):
         return f"{self.user.username}"

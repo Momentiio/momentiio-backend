@@ -1,9 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-
 from address.models import Address
 from .models import Profile
+
+
+class AddressInline(admin.StackedInline):
+    model = Address
 
 
 class ProfileInline(admin.StackedInline):
@@ -13,12 +16,8 @@ class ProfileInline(admin.StackedInline):
     fk_name = 'user'
 
 
-class AddressInline(admin.StackedInline):
-    model = Address
-
-
 class CustomUserAdmin(UserAdmin):
-    inlines = (ProfileInline, )
+    inlines = (ProfileInline, AddressInline)
 
     def get_inline_instances(self, request, obj=None):
         if not obj:

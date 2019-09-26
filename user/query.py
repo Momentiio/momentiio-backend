@@ -1,10 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import models
+from django.contrib.auth.models import User
 import graphene
 from graphene import NonNull, ObjectType, List, Field, String, Union, ID
 from graphene_django import DjangoObjectType
-from address.models import Country
-from . import models
+from address.models import Address, Country
+from .models import Profile
 
 
 class CountryType(DjangoObjectType):
@@ -16,9 +16,9 @@ class CountryType(DjangoObjectType):
         }
 
 
-class UserAddress(DjangoObjectType):
+class AddressType(DjangoObjectType):
     class Meta:
-        model = models.Address
+        model = Address
         only_fields = {
             "address_line1",
             "address_line2",
@@ -29,23 +29,26 @@ class UserAddress(DjangoObjectType):
         }
 
 
-class User(DjangoObjectType):
+class UserType(DjangoObjectType):
+    address = Field(AddressType)
+
     class Meta:
-        model = models.User
+        model = User
         only_fields = {
             "id",
             "username",
             "first_name",
-            "last_name"
+            "last_name",
         }
 
 
 class ProfileType(DjangoObjectType):
     user_name = String()
     full_name = String()
+    address = Field(AddressType)
 
     class Meta:
-        model = models.Profile
+        model = Profile
         only_fields = {
             "id",
             "user",
@@ -54,7 +57,6 @@ class ProfileType(DjangoObjectType):
             "location",
             "birth_date",
             "interests",
-            "address"
         }
 
     def resolve_user_name(self, info):
@@ -63,24 +65,27 @@ class ProfileType(DjangoObjectType):
     def resolve_full_name(self, info):
         return self.user.full_name
 
+    def resolve_address(self, info):
+        return self.user.address
+
 
 class UserListQuery(ObjectType):
     users = NonNull(List(ProfileType))
 
     def resolve_users(self, info):
-        return models.Profile.objects.all()
+        return Profile.objects.all()
 
 
 class UserQuery(ObjectType):
     user = Field(ProfileType, user_id=ID())
 
     def resolve_user(self, info, user_id):
-        return models.Profile.objects.get(pk=user_id)
+        return Profile.objects.get(pk=user_id)
 
 
 class UserAuth(ObjectType):
-    me = graphene.Field(User)
-    users = graphene.List(User)
+    me = Field(User)
+    users = List(User)
 
     def resolve_users(self, info):
         return get_user_model().objects.all()

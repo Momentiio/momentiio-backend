@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Country(models.Model):
@@ -6,7 +7,7 @@ class Country(models.Model):
     iso_code = models.CharField(max_length=2, primary_key=True)
     name = models.CharField(max_length=45, blank=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -21,7 +22,7 @@ class StateProvince(models.Model):
     country = models.ForeignKey(
         Country, to_field="iso_code", on_delete=models.CASCADE)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -39,8 +40,9 @@ class Address(models.Model):
     state_province = models.CharField("State/Province", max_length=40,
                                       blank=True)
     country = models.ForeignKey(Country, blank=False, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, blank=False, on_delete=models.PROTECT)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s, %s %s" % (self.city, self.state_province,
                               str(self.country))
 
