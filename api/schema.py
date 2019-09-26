@@ -4,7 +4,7 @@ from graphene import List, Schema, ObjectType, NonNull, ID
 from graphene_django import DjangoObjectType
 from social.query import PostsQuery
 from user.query import UserListQuery, UserQuery
-from user.mutation import CreateUserMutation
+from user.mutation import CreateUserMutation, UserAuth
 
 
 class Query(
@@ -16,7 +16,8 @@ class Query(
 
 
 class Mutation(
-    CreateUserMutation
+    CreateUserMutation,
+    UserAuth
 ):
     pass
 
