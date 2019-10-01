@@ -56,6 +56,38 @@ class InterestType(DjangoObjectType):
         model = Interest
 
 
+class UpdateUser(graphene.Mutation):
+    class Arguments:
+        user_id = graphene.ID()
+        username = graphene.String()
+        email = graphene.String()
+        first_name = graphene.String()
+        last_name = graphene.String()
+    user = graphene.Field(UserType)
+    errors = graphene.String()
+
+    def mutate(self, info, user_id, username, email, first_name, last_name):
+        try:
+            _id = int(user_id)
+            user = User.objects.get(id=_id)
+        except User.DoesNotExist:
+            return UpdateUser(errors='User could not be found')
+        if username is not None:
+            user.username = username
+        if email is not None:
+            user.email = email
+        if first_name is not None:
+            user.first_name = first_name
+        if last_name is not None:
+            user.last_name = last_name
+        user.save()
+        return UpdateUser(user=user, errors=None)
+
+
+class UpdateUserMutation(graphene.ObjectType):
+    update_user = UpdateUser.Field()
+
+
 class UpdateUserProfile(graphene.Mutation):
     class Arguments:
         user_id = graphene.ID()
