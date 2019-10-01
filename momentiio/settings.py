@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'imagekit',
     'address',
     'api',
+    'core',
     'interests',
     'orderable',
     'social',

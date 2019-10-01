@@ -1,7 +1,8 @@
 from django.db import models
 from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFit
-from user.models import Profile, BaseModel
+from core.models import BaseModel
+from user.models import Profile
 
 
 class Post(BaseModel):

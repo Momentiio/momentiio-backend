@@ -1,7 +1,11 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 import graphene
 import graphql_jwt
 from graphene_django import DjangoObjectType
+from interests.models import Interest
+from .models import Profile
+from .query import ProfileType
 
 
 class UserAuth(graphene.ObjectType):
@@ -36,3 +40,56 @@ class CreateUser(graphene.Mutation):
 
 class CreateUserMutation(graphene.ObjectType):
     create_user = CreateUser.Field()
+
+# class UploadImageMutation(graphene.ClientIdMutation):
+#     class Input:
+#         pass
+#     success = graphene.String()
+#     @classmethod
+#     def mutate_and_get_payload(cls, root, info, **input):
+#         files = info.context.FILES
+#         return UploadFile(success=True)
+
+
+class InterestType(DjangoObjectType):
+    class Meta:
+        model = Interest
+
+
+class UpdateUserProfile(graphene.Mutation):
+    class Arguments:
+        user_id = graphene.ID()
+        profile_avatar = graphene.String()
+        bio = graphene.String()
+        birth_date = graphene.types.datetime.Date()
+        location = graphene.String()
+        # interests = graphene.List(InterestType)
+
+    errors = graphene.String()
+    profile = graphene.Field(ProfileType)
+
+    def mutate(self, info, user_id, profile_avatar, bio, location, birth_date):
+        try:
+            _id = int(user_id)
+            user = User.objects.get(id=_id)
+        except User.DoesNotExist:
+            return UpdateUserProfile(errors='Please Login')
+        profile = user.profile
+        if profile_avatar is not None:
+            profile.profile_avatar = profile_avatar
+        if bio is not None:
+            profile.bio = bio
+        if location is not None:
+            profile.location = location
+        if birth_date is not None:
+            profile.birth_date = birth_date
+        # if interests is not None:
+        #     profile.interests = interests
+
+        profile.save()
+
+        return UpdateUserProfile(profile=profile, errors=None)
+
+
+class UpdateUserProfileMutation(graphene.ObjectType):
+    update_profile = UpdateUserProfile.Field()

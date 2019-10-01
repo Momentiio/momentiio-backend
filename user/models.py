@@ -1,4 +1,3 @@
-import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -6,26 +5,14 @@ from django.dispatch import receiver
 from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFit
 
+from core.models import BaseModel
 from interests.models import Interest
 from address.models import Address
 
 
-class BaseModel(models.Model):
-    """Base model for the application. Uses UUID for pk."""
-    id = models.UUIDField(
-        primary_key=True,
-        editable=False,
-        default=uuid.uuid4,
-    )
-
-    class Meta:
-        """Metadata."""
-        abstract = True
-
-
 class Profile(BaseModel):
     user = models.OneToOneField(
-        User, on_delete=models.CASCADE)
+        User, on_delete=models.CASCADE, related_name="profile")
     profile_avatar = ProcessedImageField(
         upload_to="user_photos",
         format="JPEG",
