@@ -5,18 +5,13 @@ import graphql_jwt
 from graphene_django import DjangoObjectType
 from interests.models import Interest
 from .models import Profile
-from .query import ProfileType
+from .query import ProfileType, UserType
 
 
 class UserAuth(graphene.ObjectType):
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()
     refresh_token = graphql_jwt.Refresh.Field()
-
-
-class UserType(DjangoObjectType):
-    class Meta:
-        model = get_user_model()
 
 
 class CreateUser(graphene.Mutation):

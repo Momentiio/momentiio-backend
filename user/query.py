@@ -29,19 +29,6 @@ class AddressType(DjangoObjectType):
         }
 
 
-class UserType(DjangoObjectType):
-    address = Field(AddressType)
-
-    class Meta:
-        model = User
-        only_fields = {
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-        }
-
-
 class ProfileType(DjangoObjectType):
     user_name = String()
     full_name = String()
@@ -69,6 +56,21 @@ class ProfileType(DjangoObjectType):
         return self.user.address
 
 
+class UserType(DjangoObjectType):
+    address = Field(AddressType)
+    profile = Field(ProfileType)
+
+    class Meta:
+        model = User
+        only_fields = {
+            "id",
+            "email",
+            "username",
+            "first_name",
+            "last_name",
+        }
+
+
 class UserListQuery(ObjectType):
     users = NonNull(List(ProfileType))
 
@@ -77,10 +79,10 @@ class UserListQuery(ObjectType):
 
 
 class UserQuery(ObjectType):
-    user = Field(ProfileType, user_id=ID())
+    user = Field(UserType, user_id=ID())
 
     def resolve_user(self, info, user_id):
-        return Profile.objects.get(pk=user_id)
+        return User.objects.get(id=user_id)
 
 
 class UserAuth(ObjectType):
