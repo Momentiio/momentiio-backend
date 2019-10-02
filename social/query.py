@@ -4,16 +4,7 @@ import graphene
 from graphene import NonNull, ObjectType, List, Field, String, Union
 from graphene_django import DjangoObjectType
 from . import models
-
-
-class UserType(DjangoObjectType):
-
-    class Meta:
-        model = User
-        fields = [
-            "id",
-            "username",
-        ]
+from user.query import UserType
 
 
 class Post(DjangoObjectType):

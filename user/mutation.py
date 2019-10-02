@@ -52,14 +52,15 @@ class InterestType(DjangoObjectType):
 
 
 class UpdateUser(graphene.Mutation):
-    class Arguments:
-        user_id = graphene.ID()
-        username = graphene.String()
-        email = graphene.String()
-        first_name = graphene.String()
-        last_name = graphene.String()
     user = graphene.Field(UserType)
     errors = graphene.String()
+
+    class Arguments:
+        user_id = graphene.ID(required=True)
+        username = graphene.String(required=False)
+        email = graphene.String(required=False)
+        first_name = graphene.String(required=False)
+        last_name = graphene.String(required=False)
 
     def mutate(self, info, user_id, username, email, first_name, last_name):
         try:
@@ -84,18 +85,18 @@ class UpdateUserMutation(graphene.ObjectType):
 
 
 class UpdateUserProfile(graphene.Mutation):
+    errors = graphene.String()
+    profile = graphene.Field(ProfileType)
+
     class Arguments:
         user_id = graphene.ID()
         profile_avatar = graphene.String()
         bio = graphene.String()
         birth_date = graphene.types.datetime.Date()
         location = graphene.String()
-        # interests = graphene.List(InterestType)
+        interests = graphene.List(graphene.ID)
 
-    errors = graphene.String()
-    profile = graphene.Field(ProfileType)
-
-    def mutate(self, info, user_id, profile_avatar, bio, location, birth_date):
+    def mutate(self, info, user_id, profile_avatar, bio, location, birth_date, interests):
         try:
             _id = int(user_id)
             user = User.objects.get(id=_id)
@@ -110,8 +111,8 @@ class UpdateUserProfile(graphene.Mutation):
             profile.location = location
         if birth_date is not None:
             profile.birth_date = birth_date
-        # if interests is not None:
-        #     profile.interests = interests
+        if interests is not None:
+            profile.interests = interests
 
         profile.save()
 
