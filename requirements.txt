@@ -4,6 +4,7 @@ boto3==1.7.3
 django-cors-headers==2.4.0
 django-compressor==2.2
 django-environ==0.4.4
+django-graphql-jwt==0.2.2
 django-imagekit==4.0
 django-libsass==0.7
 django_orderable==6.0.1
