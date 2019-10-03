@@ -4,10 +4,22 @@ import graphene
 from graphene import NonNull, ObjectType, List, Field, String, Union
 from graphene_django import DjangoObjectType
 from . import models
-from user.query import UserType
 
 
-class Post(DjangoObjectType):
+class CommentType(DjangoObjectType):
+    class Meta:
+        model = models.Comment
+        only_fields = [
+            "user",
+            "photo",
+            "content",
+            "date_created"
+        ]
+
+
+class PostType(DjangoObjectType):
+    comments = List(CommentType)
+
     class Meta:
         model = models.Post
         only_fields = [
@@ -18,6 +30,9 @@ class Post(DjangoObjectType):
             "date_updated"
         ]
 
+    def resolve_comments(self, info):
+        return self.comments.objects.all()
+
 
 # class PostComment(DjangoObjectType):
 
@@ -26,7 +41,7 @@ class Post(DjangoObjectType):
 
 
 class PostsQuery(ObjectType):
-    posts = NonNull(List(Post))
+    posts = NonNull(List(PostType))
 
     def resolve_posts(self, info):
         return models.Post.objects.all()
