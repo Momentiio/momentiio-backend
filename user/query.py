@@ -4,6 +4,8 @@ import graphene
 from graphene import NonNull, ObjectType, List, Field, String, Union, ID
 from graphene_django import DjangoObjectType
 from address.models import Address, Country
+from social.models import Post
+from social.query import PostType
 from .models import Profile
 
 
@@ -33,6 +35,7 @@ class ProfileType(DjangoObjectType):
     user_name = String()
     full_name = String()
     address = Field(AddressType)
+    posts = List(PostType)
 
     class Meta:
         model = Profile
@@ -54,6 +57,9 @@ class ProfileType(DjangoObjectType):
 
     def resolve_address(self, info):
         return self.user.address
+
+    def resolve_posts(self, info):
+        return Post.objects.filter(user=self.id)
 
 
 class UserType(DjangoObjectType):
