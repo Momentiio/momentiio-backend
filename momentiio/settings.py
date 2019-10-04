@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'address',
     'api',
     'core',
+    'friendship',
     'interests',
     'orderable',
     'social',

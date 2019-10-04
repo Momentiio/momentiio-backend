@@ -4,6 +4,7 @@ import graphene
 from graphene import NonNull, ObjectType, List, Field, String, Union, ID
 from graphene_django import DjangoObjectType
 from address.models import Address, Country
+from friendship.models import Friend, FriendshipRequest, Follow, Block
 from social.models import Post
 from social.query import PostType
 from .models import Profile
@@ -31,11 +32,28 @@ class AddressType(DjangoObjectType):
         }
 
 
+class FriendType(DjangoObjectType):
+    class Meta:
+        model = Friend
+
+
+class FriendshipRequestType(DjangoObjectType):
+    class Meta:
+        model = FriendshipRequest
+
+
+class FollowType(DjangoObjectType):
+    class Meta:
+        model = Follow
+
+
 class ProfileType(DjangoObjectType):
     user_name = String()
     full_name = String()
     address = Field(AddressType)
     posts = List(PostType)
+    followers = List(FriendType)
+    following = List(FriendType)
 
     class Meta:
         model = Profile
@@ -61,10 +79,21 @@ class ProfileType(DjangoObjectType):
     def resolve_posts(self, info):
         return Post.objects.filter(user=self.id)
 
+    def resolve_followers(self, info):
+        request_user = User.objects.get(pk=self.user.id)
+        return Follow.objects.followers(request_user)
+
+    def resolve_following(self, info):
+        request_user = User.objects.get(pk=self.user.id)
+        return Follow.objects.following(request_user)
+
 
 class UserType(DjangoObjectType):
     address = Field(AddressType)
     profile = Field(ProfileType)
+    friends = List(FriendType)
+    friend_requests = List(FriendshipRequestType)
+    friend_request_count = String()
 
     class Meta:
         model = User
@@ -75,6 +104,15 @@ class UserType(DjangoObjectType):
             "first_name",
             "last_name",
         }
+
+    def resolve_friends(self, info):
+        return Friend.objects.friends(self)
+
+    def resolve_friend_requests(self, info):
+        return Friend.objects.unrejected_requests(user=self)
+
+    def resolve_friend_request_count(self, info):
+        return Friend.objects.unrejected_request_count(user=self)
 
 
 class UserListQuery(ObjectType):
