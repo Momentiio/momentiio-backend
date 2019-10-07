@@ -170,13 +170,16 @@ class HandleFriendRequest(graphene.Mutation):
             to_friend = User.objects.get(pk=to_user)
             friend_request = FriendshipRequest.objects.get(
                 to_user=to_friend)
+
         except from_friend.DoesNotExist or to_friend.DoesNotExist:
             return HandleFriendRequest(errors="user no longer exists")
 
         if confirm == True:
             friend_request.accept()
+            new_friend = Friend.objects.get(
+                to_user=to_friend, from_user=from_friend)
             return HandleFriendRequest(
-                new_friend=User.objects.get(pk=to_friend), accepted=True, errors=None)
+                new_friend=new_friend, accepted=True, errors=None)
         elif confirm == False:
             friend_request.reject()
             return HandleFriendRequest(new_friend=Friend.objects.rejected_requests(user=to_friend), accepted=False, errors=False)
