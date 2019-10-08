@@ -7,7 +7,7 @@ from graphene_django import DjangoObjectType
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 from interests.models import Interest
 from .models import Profile
-from .query import ProfileType, UserType, FriendType, FriendshipRequestType
+from .query import ProfileType, ProfileUserType, FriendType, FriendshipRequestType
 
 
 class UserAuth(graphene.ObjectType):
@@ -17,7 +17,7 @@ class UserAuth(graphene.ObjectType):
 
 
 class CreateUser(graphene.Mutation):
-    user = graphene.Field(UserType)
+    user = graphene.Field(ProfileUserType)
 
     class Arguments:
         username = graphene.String(required=True)
@@ -54,7 +54,7 @@ class InterestType(DjangoObjectType):
 
 
 class UpdateUser(graphene.Mutation):
-    user = graphene.Field(UserType)
+    user = graphene.Field(ProfileUserType)
     errors = graphene.String()
 
     class Arguments:
@@ -176,6 +176,35 @@ class AddFriend(graphene.Mutation):
 
 class AddFriendMutation(graphene.ObjectType):
     add_friend = AddFriend.Field()
+
+
+class RemoveFriend(graphene.Mutation):
+    friend_list = graphene.List(FriendType)
+    are_friends = graphene.Boolean()
+    errors = graphene.String()
+
+    class Arguments:
+        from_user = graphene.ID()
+        to_user = graphene.ID()
+
+    def mutate(self, info, from_user, to_user):
+        requesting_user = User.objects.get(pk=from_user)
+        friend = User.objects.get(pk=to_user)
+        are_friends = Friend.objects.are_friends(
+            requesting_user, friend) == True
+
+        if are_friends:
+            Friend.objects.remove_friend(requesting_user, friend)
+            friend_list = Friend.objects.friends(friend)
+            are_friends = Friend.objects.are_friends(
+                requesting_user, friend) == True
+            return RemoveFriend(friend_list=friend_list, are_friends=are_friends)
+        else:
+            return RemoveFriend(errors="Cannot remove a Friendship that does not exist")
+
+
+class RemoveFriendMutation(graphene.ObjectType):
+    remove_friend = RemoveFriend.Field()
 
 
 class AcceptFriendRequest(graphene.Mutation):

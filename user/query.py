@@ -89,9 +89,16 @@ class ProfileType(DjangoObjectType):
 
 
 class UserType(DjangoObjectType):
+    profile = Field(ProfileType)
+
+    class Meta:
+        model = User
+
+
+class ProfileUserType(DjangoObjectType):
     address = Field(AddressType)
     profile = Field(ProfileType)
-    friends = List(FriendType)
+    friends = List(UserType)
     friend_requests = List(FriendshipRequestType)
     friend_request_count = String()
 
@@ -106,7 +113,7 @@ class UserType(DjangoObjectType):
         }
 
     def resolve_friends(self, info):
-        return Friend.objects.friends(self)
+        return Friend.objects.friends(user=self)
 
     def resolve_friend_requests(self, info):
         return Friend.objects.unrejected_requests(user=self)
@@ -123,7 +130,7 @@ class UserListQuery(ObjectType):
 
 
 class UserQuery(ObjectType):
-    user = Field(UserType, user_id=ID())
+    user = Field(ProfileUserType, user_id=ID())
 
     def resolve_user(self, info, user_id):
         return User.objects.get(id=user_id)
