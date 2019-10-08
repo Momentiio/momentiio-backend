@@ -154,6 +154,28 @@ class RequestFriendMutation(graphene.ObjectType):
     request_friend = RequestFriend.Field()
 
 
+class AddFriend(graphene.Mutation):
+    new_friend = graphene.Field(FriendType)
+
+    class Arguments:
+        from_user = graphene.ID()
+        to_user = graphene.ID()
+
+    def mutate(self, info, from_user, to_user):
+        requesting_user = User.objects.get(pk=from_user)
+        requested_friend = User.objects.get(pk=to_user)
+        friend_request = FriendshipRequest.objects.get(
+            to_user=requested_friend)
+        friend_request.accept()
+        new_friend = Friend.objects.get(
+            to_user=requested_friend, from_user=requesting_user)
+        return AddFriend(new_friend=new_friend)
+
+
+class AddFriendMutation(graphene.ObjectType):
+    add_friend = AddFriend.Field()
+
+
 class AcceptFriendRequest(graphene.Mutation):
     new_friend = graphene.Field(FriendType)
     accepted = graphene.Boolean()
