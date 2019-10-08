@@ -154,7 +154,7 @@ class RequestFriendMutation(graphene.ObjectType):
     request_friend = RequestFriend.Field()
 
 
-class HandleFriendRequest(graphene.Mutation):
+class AcceptFriendRequest(graphene.Mutation):
     new_friend = graphene.Field(FriendType)
     accepted = graphene.Boolean()
     errors = graphene.String()
@@ -162,28 +162,75 @@ class HandleFriendRequest(graphene.Mutation):
     class Arguments:
         from_user = graphene.ID()
         to_user = graphene.ID()
-        confirm = graphene.Boolean()
 
-    def mutate(self, info, from_user, to_user, confirm):
+    def mutate(self, info, from_user, to_user):
+        try:
+            requesting_user = User.objects.get(pk=from_user)
+            requested_friend = User.objects.get(pk=to_user)
+            friend_request = FriendshipRequest.objects.get(
+                to_user=requested_friend)
+            friend_request.accept()
+            new_friend = Friend.objects.get(
+                to_user=requested_friend, from_user=requesting_user)
+            accepted = Friend.objects.are_friends(
+                requesting_user, requested_friend) == True
+
+            return AcceptFriendRequest(
+                new_friend=new_friend, accepted=accepted, errors=None)
+
+        except requested_friend.DoesNotExist:
+            return AcceptFriendRequest(errors="user no longer exists")
+
+
+class AcceptFriendRequestMutation(graphene.ObjectType):
+    accept_friend_request = AcceptFriendRequest.Field()
+
+
+class CancelFriendRequest(graphene.Mutation):
+    friend_requests = graphene.List(FriendshipRequestType)
+
+    class Arguments:
+        from_user = graphene.ID()
+        to_user = graphene.ID()
+
+    def mutate(self, info, from_user, to_user):
         try:
             from_friend = User.objects.get(pk=from_user)
             to_friend = User.objects.get(pk=to_user)
-            friend_request = FriendshipRequest.objects.get(
-                to_user=to_friend)
-
         except from_friend.DoesNotExist or to_friend.DoesNotExist:
-            return HandleFriendRequest(errors="user no longer exists")
+            return CancelFriendRequest(friend_requests=Friend.objects.unrejected_requests(user=from_friend))
+        if from_friend and to_friend:
+            request_to_cancel = FriendshipRequest.objects.get(
+                to_user=to_friend)
+            request_to_cancel.cancel()
+            return CancelFriendRequest(friend_requests=Friend.objects.unrejected_requests(user=from_friend))
 
-        if confirm == True:
-            friend_request.accept()
-            new_friend = Friend.objects.get(
-                to_user=to_friend, from_user=from_friend)
-            return HandleFriendRequest(
-                new_friend=new_friend, accepted=True, errors=None)
-        elif confirm == False:
+
+class CancelFriendRequestMutation(graphene.ObjectType):
+    cancel_friend_request = CancelFriendRequest.Field()
+
+
+class DeclineFriendRequest(graphene.Mutation):
+    friend_requests = graphene.List(FriendshipRequestType)
+    errors = graphene.String()
+
+    class Arguments:
+        from_user = graphene.ID()
+        to_user = graphene.ID()
+
+    def mutate(self, info, from_user, to_user):
+        try:
+            requesting_user = User.objects.get(pk=from_user)
+            requested_friend = User.objects.get(pk=to_user)
+            friend_request = FriendshipRequest.objects.get(
+                to_user=requested_friend)
+
             friend_request.reject()
-            return HandleFriendRequest(new_friend=Friend.objects.rejected_requests(user=to_friend), accepted=False, errors=False)
+            return DeclineFriendRequest(friend_requests=Friend.objects.unrejected_requests(user=requesting_user), errors=None)
+
+        except requested_friend.DoesNotExist:
+            return DeclineFriendRequest(errors="user no longer exists")
 
 
-class HandleFriendRequestMutation(graphene.ObjectType):
-    handle_friend_request = HandleFriendRequest.Field()
+class DeclineFriendRequestMutation(graphene.ObjectType):
+    decline_friend_request = DeclineFriendRequest.Field()
