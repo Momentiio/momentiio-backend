@@ -47,13 +47,19 @@ class FollowType(DjangoObjectType):
         model = Follow
 
 
+class UserType(DjangoObjectType):
+
+    class Meta:
+        model = User
+
+
 class ProfileType(DjangoObjectType):
     user_name = String()
     full_name = String()
     address = Field(AddressType)
     posts = List(PostType)
-    followers = List(FriendType)
-    following = List(FriendType)
+    followers = List(UserType)
+    following = List(UserType)
 
     class Meta:
         model = Profile
@@ -86,13 +92,6 @@ class ProfileType(DjangoObjectType):
     def resolve_following(self, info):
         request_user = User.objects.get(pk=self.user.id)
         return Follow.objects.following(request_user)
-
-
-class UserType(DjangoObjectType):
-    profile = Field(ProfileType)
-
-    class Meta:
-        model = User
 
 
 class ProfileUserType(DjangoObjectType):

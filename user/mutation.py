@@ -7,7 +7,7 @@ from graphene_django import DjangoObjectType
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 from interests.models import Interest
 from .models import Profile
-from .query import ProfileType, ProfileUserType, FriendType, FriendshipRequestType
+from .query import ProfileType, ProfileUserType, UserType, FriendType, FriendshipRequestType
 
 
 class UserAuth(graphene.ObjectType):
@@ -179,7 +179,7 @@ class AddFriendMutation(graphene.ObjectType):
 
 
 class RemoveFriend(graphene.Mutation):
-    friend_list = graphene.List(FriendType)
+    friend_list = graphene.List(UserType)
     are_friends = graphene.Boolean()
     errors = graphene.String()
 
