@@ -25,6 +25,8 @@ class Profile(BaseModel):
     location = models.CharField(max_length=30, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     interests = models.ManyToManyField(Interest)
+    is_private = models.BooleanField(default=False)
+    is_hidden = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username}"
@@ -32,7 +34,7 @@ class Profile(BaseModel):
     @property
     def full_name(self):
         "Returns the person's full name."
-        return '%s %s' % (self.user.first_name, self.user.last_name)
+        return user.get_full_name()
 
 
 @receiver(post_save, sender=User)
