@@ -71,6 +71,8 @@ class ProfileType(DjangoObjectType):
             "location",
             "birth_date",
             "interests",
+            "is_private",
+            "is_hidden"
         }
 
     def resolve_user_name(self, info):

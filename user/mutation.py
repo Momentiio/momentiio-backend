@@ -92,16 +92,15 @@ class UpdateUserProfile(graphene.Mutation):
 
     class Arguments:
         user_id = graphene.ID()
-        profile_avatar = graphene.String()
-        bio = graphene.String()
-        birth_date = graphene.types.datetime.Date()
-        location = graphene.String()
-        interests = graphene.List(graphene.ID)
+        profile_avatar = graphene.String(required=False)
+        bio = graphene.String(required=False)
+        birth_date = graphene.types.datetime.Date(required=False)
+        location = graphene.String(required=False)
+        interests = graphene.List(graphene.ID, required=False)
 
     def mutate(self, info, user_id, profile_avatar, bio, location, birth_date, interests):
         try:
-            _id = int(user_id)
-            user = User.objects.get(id=_id)
+            user = User.objects.get(pk=user_id)
         except User.DoesNotExist:
             return UpdateUserProfile(errors='Please Login')
         profile = user.profile
@@ -123,6 +122,54 @@ class UpdateUserProfile(graphene.Mutation):
 
 class UpdateUserProfileMutation(graphene.ObjectType):
     update_profile = UpdateUserProfile.Field()
+
+
+class UpdatePrivacyPermission(graphene.Mutation):
+    is_private = graphene.Boolean()
+    errors = graphene.String()
+
+    class Arguments:
+        userId = graphene.ID()
+        is_private = graphene.Boolean()
+
+    def mutate(self, info, userId, is_private):
+        user = User.objects.get(pk=userId)
+        if user:
+            profile = user.profile
+            profile.is_private = is_private
+            profile.save()
+            return UpdatePrivacyPermission(is_private=profile.is_private, errors=None)
+        else:
+            return UpdatePrivacyPermission(errors="User not found, please login or create an account")
+
+
+class UpdatePrivacyMutation(graphene.ObjectType):
+    update_privacy_status = UpdatePrivacyPermission.Field()
+
+
+class UpdateHiddenPermission(graphene.Mutation):
+    is_hidden = graphene.Boolean()
+    errors = graphene.String()
+
+    class Arguments:
+        userId = graphene.ID()
+        is_hidden = graphene.Boolean()
+
+    def mutate(self, info, userId, is_hidden):
+        user = User.objects.get(pk=userId)
+        if user:
+            profile = user.profile
+            profile.is_hidden = is_hidden
+            profile.save()
+            return UpdateHiddenPermission(is_hidden=profile.is_hidden, errors=None)
+        else:
+            return UpdateHiddenPermission(errors="User not found, please login or create an account")
+
+
+class UpdateHiddenMutation(graphene.ObjectType):
+    update_hidden_status = UpdateHiddenPermission.Field()
+
+# Friendship Mutations
 
 
 class RequestFriend(graphene.Mutation):
@@ -156,6 +203,7 @@ class RequestFriendMutation(graphene.ObjectType):
 
 class AddFriend(graphene.Mutation):
     new_friend = graphene.Field(FriendType)
+    errors = graphene.String()
 
     class Arguments:
         from_user = graphene.ID()
@@ -164,14 +212,18 @@ class AddFriend(graphene.Mutation):
     def mutate(self, info, from_user, to_user):
         requesting_user = User.objects.get(pk=from_user)
         friend = User.objects.get(pk=to_user)
+        is_private_or_hidden = friend.profile.is_private or friend.profile.is_hidden
 
-        Friend.objects.create(
-            from_user=requesting_user,
-            to_user=friend,
-        )
-        new_friend = Friend.objects.get(
-            to_user=friend, from_user=requesting_user)
-        return AddFriend(new_friend=new_friend)
+        if not is_private_or_hidden:
+            Friend.objects.create(
+                from_user=requesting_user,
+                to_user=friend,
+            )
+            new_friend = Friend.objects.get(
+                to_user=friend, from_user=requesting_user)
+            return AddFriend(new_friend=new_friend, errors=None)
+        else:
+            return AddFriend(errors="This user is private, You must send them a friend request to become friends.")
 
 
 class AddFriendMutation(graphene.ObjectType):
