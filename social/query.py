@@ -23,6 +23,7 @@ class PostType(DjangoObjectType):
     class Meta:
         model = models.Post
         only_fields = [
+            "id",
             "user",
             "caption",
             "photo",

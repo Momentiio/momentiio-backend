@@ -5,7 +5,7 @@ from graphene_django import DjangoObjectType
 from address.mutation import UpdateAddressMutation
 from social.query import PostsQuery
 from user.query import UserListQuery, UserQuery
-from user.mutation import CreateUserMutation, UserAuth, UpdateUserMutation, UpdateUserProfileMutation
+from user.mutation import AddFriendMutation, RemoveFriendMutation, CreateUserMutation, CancelFriendRequestMutation, RequestFriendMutation, AcceptFriendRequestMutation, DeclineFriendRequestMutation, UserAuth, UpdateUserMutation, UpdateUserProfileMutation
 
 
 class Query(
@@ -21,7 +21,13 @@ class Mutation(
     UpdateAddressMutation,
     UpdateUserMutation,
     UpdateUserProfileMutation,
-    UserAuth
+    UserAuth,
+    AddFriendMutation,
+    RemoveFriendMutation,
+    RequestFriendMutation,
+    AcceptFriendRequestMutation,
+    CancelFriendRequestMutation,
+    DeclineFriendRequestMutation
 ):
     pass
 
