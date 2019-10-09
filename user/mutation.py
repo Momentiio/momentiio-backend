@@ -207,22 +207,19 @@ class RequestFriend(graphene.Mutation):
     friendship_request = graphene.Field(FriendshipRequestType)
 
     class Arguments:
-        to_user = graphene.ID()
+        friend_id = graphene.ID()
 
-    def mutate(self, info, to_user):
-        try:
-            from_user_id = info.context.user
-            to_user_id = User.objects.get(pk=to_user)
-        except User.DoesNotExist:
-            return RequestFriend(errors="You must be logged in to send a friend request")
+    def mutate(self, info, friend_id):
+        _user = info.context.user
+        friend = User.objects.get(pk=friend_id)
 
-        if from_user_id and to_user_id:
+        if _user and friend:
             Friend.objects.add_friend(
-                from_user_id,
-                to_user_id,
+                _user,
+                friend,
                 message=""
             )
-        return RequestFriend(friendship_request=FriendshipRequest.objects.get(to_user=to_user_id), errors=None)
+        return RequestFriend(friendship_request=FriendshipRequest.objects.get(to_user=friend), errors=None)
 
 
 class RequestFriendMutation(graphene.ObjectType):
@@ -234,20 +231,20 @@ class AddFriend(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        to_user = graphene.ID()
+        friend_id = graphene.ID()
 
-    def mutate(self, info, to_user):
-        requesting_user = info.context.user
-        friend = User.objects.get(pk=to_user)
+    def mutate(self, info, friend_id):
+        user = info.context.user
+        friend = User.objects.get(pk=friend_id)
         is_private_or_hidden = friend.profile.is_private or friend.profile.is_hidden
 
         if not is_private_or_hidden:
-            Friend.objects.create(
-                from_user=requesting_user,
+            Friend.objects.get_or_create(
+                from_user=user,
                 to_user=friend,
             )
             new_friend = Friend.objects.get(
-                to_user=friend, from_user=requesting_user)
+                to_user=friend, from_user=user)
             return AddFriend(new_friend=new_friend, errors=None)
         else:
             return AddFriend(errors="This user is private, You must send them a friend request to become friends.")
@@ -263,19 +260,19 @@ class RemoveFriend(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        to_user = graphene.ID()
+        friend_id = graphene.ID()
 
-    def mutate(self, info, to_user):
-        requesting_user = info.context.user
-        friend = User.objects.get(pk=to_user)
+    def mutate(self, info, friend_id):
+        user = info.context.user
+        friend = User.objects.get(pk=friend_id)
         are_friends = Friend.objects.are_friends(
-            requesting_user, friend) == True
+            user, friend) == True
 
         if are_friends:
-            Friend.objects.remove_friend(requesting_user, friend)
+            Friend.objects.remove_friend(user, friend)
             friend_list = Friend.objects.friends(friend)
             are_friends = Friend.objects.are_friends(
-                requesting_user, friend) == True
+                user, friend) == True
             return RemoveFriend(friend_list=friend_list, are_friends=are_friends)
         else:
             return RemoveFriend(errors="Cannot remove a Friendship that does not exist")
@@ -291,12 +288,12 @@ class AcceptFriendRequest(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        to_user = graphene.ID()
+        from_user = graphene.ID()
 
-    def mutate(self, info, to_user):
+    def mutate(self, info, from_user):
         try:
-            requesting_user = info.context.user
-            requested_friend = User.objects.get(pk=to_user)
+            requesting_user = User.objects.get(pk=from_user)
+            requested_friend = info.context.user
             friend_request = FriendshipRequest.objects.get(
                 to_user=requested_friend)
             friend_request.accept()
@@ -320,19 +317,19 @@ class CancelFriendRequest(graphene.Mutation):
     friend_requests = graphene.List(FriendshipRequestType)
 
     class Arguments:
-        to_user = graphene.ID()
+        friend_id = graphene.ID()
 
-    def mutate(self, info, to_user):
+    def mutate(self, info, friend_id):
         try:
-            from_friend = info.context.user
-            to_friend = User.objects.get(pk=to_user)
-        except from_friend.DoesNotExist or to_friend.DoesNotExist:
-            return CancelFriendRequest(friend_requests=Friend.objects.unrejected_requests(user=from_friend))
-        if from_friend and to_friend:
+            user = info.context.user
+            friend = User.objects.get(pk=friend_id)
+        except user.DoesNotExist or friend.DoesNotExist:
+            return CancelFriendRequest(friend_requests=Friend.objects.unrejected_requests(user=user))
+        if user and friend:
             request_to_cancel = FriendshipRequest.objects.get(
-                to_user=to_friend)
+                to_user=friend)
             request_to_cancel.cancel()
-            return CancelFriendRequest(friend_requests=Friend.objects.unrejected_requests(user=from_friend))
+            return CancelFriendRequest(friend_requests=Friend.objects.unrejected_requests(user=user))
 
 
 class CancelFriendRequestMutation(graphene.ObjectType):
@@ -344,17 +341,17 @@ class DeclineFriendRequest(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        to_user = graphene.ID()
+        friend_id = graphene.ID()
 
-    def mutate(self, info, to_user):
+    def mutate(self, info, friend_id):
         try:
-            requesting_user = info.context.user
-            requested_friend = User.objects.get(pk=to_user)
+            user = info.context.user
+            friend = User.objects.get(pk=friend_id)
             friend_request = FriendshipRequest.objects.get(
-                to_user=requested_friend)
+                to_user=friend)
 
             friend_request.reject()
-            return DeclineFriendRequest(friend_requests=Friend.objects.unrejected_requests(user=requesting_user), errors=None)
+            return DeclineFriendRequest(friend_requests=Friend.objects.unrejected_requests(user=user), errors=None)
 
         except requested_friend.DoesNotExist:
             return DeclineFriendRequest(errors="user no longer exists")
