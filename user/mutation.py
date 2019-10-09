@@ -1,7 +1,7 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.models import User
 import graphene
-import graphql_jwt
+from rest_framework.authtoken.models import Token
 from graphene_django import DjangoObjectType
 
 from friendship.models import Friend, Follow, Block, FriendshipRequest
@@ -10,10 +10,44 @@ from .models import Profile
 from .query import ProfileType, ProfileUserType, UserType, FriendType, FriendshipRequestType
 
 
-class UserAuth(graphene.ObjectType):
-    token_auth = graphql_jwt.ObtainJSONWebToken.Field()
-    verify_token = graphql_jwt.Verify.Field()
-    refresh_token = graphql_jwt.Refresh.Field()
+class LoginUser(graphene.Mutation):
+    success = graphene.NonNull(graphene.Boolean)
+    account = graphene.Field(UserType)
+    token = graphene.String()
+    message = graphene.String()
+
+    class Arguments:
+        username = graphene.NonNull(graphene.String)
+        password = graphene.NonNull(graphene.String)
+
+    @staticmethod
+    def mutate(root, info, username, password):
+        user = authenticate(username=username, password=password)
+        if not user:
+            return LoginUser(success=False, message="Invalid Credentials")
+        login(info.context, user)
+        token, _ = Token.objects.get_or_create(user=user)
+        return LoginUser(success=True, account=user, token=token)
+
+
+class LoginUserMutation(graphene.ObjectType):
+    user_login = LoginUser.Field()
+
+
+class LogoutUser(graphene.Mutation):
+    success = graphene.NonNull(graphene.Boolean)
+
+    class Arguments:
+        pass
+
+    @staticmethod
+    def mutate(root, info):
+        logout(info.context)
+        return LogoutUser(success=True)
+
+
+class LogoutUserMutation(graphene.ObjectType):
+    logout_user = LogoutUser.Field()
 
 
 class CreateUser(graphene.Mutation):
@@ -25,6 +59,7 @@ class CreateUser(graphene.Mutation):
         email = graphene.String(required=True)
 
     def mutate(self, info, username, password, email):
+
         user = get_user_model()(
             username=username,
             email=email,
@@ -58,16 +93,14 @@ class UpdateUser(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        user_id = graphene.ID(required=True)
         username = graphene.String(required=False)
         email = graphene.String(required=False)
         first_name = graphene.String(required=False)
         last_name = graphene.String(required=False)
 
-    def mutate(self, info, user_id, username, email, first_name, last_name):
+    def mutate(self, info, username, email, first_name, last_name):
         try:
-            _id = int(user_id)
-            user = User.objects.get(id=_id)
+            user = info.context.user
         except User.DoesNotExist:
             return UpdateUser(errors='User could not be found')
         if username is not None:
@@ -91,16 +124,15 @@ class UpdateUserProfile(graphene.Mutation):
     profile = graphene.Field(ProfileType)
 
     class Arguments:
-        user_id = graphene.ID()
         profile_avatar = graphene.String(required=False)
         bio = graphene.String(required=False)
         birth_date = graphene.types.datetime.Date(required=False)
         location = graphene.String(required=False)
         interests = graphene.List(graphene.ID, required=False)
 
-    def mutate(self, info, user_id, profile_avatar, bio, location, birth_date, interests):
+    def mutate(self, info, profile_avatar, bio, location, birth_date, interests):
         try:
-            user = User.objects.get(pk=user_id)
+            user = info.context.user
         except User.DoesNotExist:
             return UpdateUserProfile(errors='Please Login')
         profile = user.profile
@@ -129,11 +161,10 @@ class UpdatePrivacyPermission(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        userId = graphene.ID()
         is_private = graphene.Boolean()
 
-    def mutate(self, info, userId, is_private):
-        user = User.objects.get(pk=userId)
+    def mutate(self, info, is_private):
+        user = info.context.user
         if user:
             profile = user.profile
             profile.is_private = is_private
@@ -152,11 +183,10 @@ class UpdateHiddenPermission(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        userId = graphene.ID()
         is_hidden = graphene.Boolean()
 
-    def mutate(self, info, userId, is_hidden):
-        user = User.objects.get(pk=userId)
+    def mutate(self, info, is_hidden):
+        user = info.context.user
         if user:
             profile = user.profile
             profile.is_hidden = is_hidden
@@ -177,13 +207,11 @@ class RequestFriend(graphene.Mutation):
     friendship_request = graphene.Field(FriendshipRequestType)
 
     class Arguments:
-        from_user = graphene.ID()
         to_user = graphene.ID()
-        message = graphene.String(required=False)
 
-    def mutate(self, info, from_user, to_user, message):
+    def mutate(self, info, to_user):
         try:
-            from_user_id = User.objects.get(pk=from_user)
+            from_user_id = info.context.user
             to_user_id = User.objects.get(pk=to_user)
         except User.DoesNotExist:
             return RequestFriend(errors="You must be logged in to send a friend request")
@@ -192,7 +220,7 @@ class RequestFriend(graphene.Mutation):
             Friend.objects.add_friend(
                 from_user_id,
                 to_user_id,
-                message=message
+                message=""
             )
         return RequestFriend(friendship_request=FriendshipRequest.objects.get(to_user=to_user_id), errors=None)
 
@@ -206,11 +234,10 @@ class AddFriend(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        from_user = graphene.ID()
         to_user = graphene.ID()
 
-    def mutate(self, info, from_user, to_user):
-        requesting_user = User.objects.get(pk=from_user)
+    def mutate(self, info, to_user):
+        requesting_user = info.context.user
         friend = User.objects.get(pk=to_user)
         is_private_or_hidden = friend.profile.is_private or friend.profile.is_hidden
 
@@ -236,11 +263,10 @@ class RemoveFriend(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        from_user = graphene.ID()
         to_user = graphene.ID()
 
-    def mutate(self, info, from_user, to_user):
-        requesting_user = User.objects.get(pk=from_user)
+    def mutate(self, info, to_user):
+        requesting_user = info.context.user
         friend = User.objects.get(pk=to_user)
         are_friends = Friend.objects.are_friends(
             requesting_user, friend) == True
@@ -265,12 +291,11 @@ class AcceptFriendRequest(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        from_user = graphene.ID()
         to_user = graphene.ID()
 
-    def mutate(self, info, from_user, to_user):
+    def mutate(self, info, to_user):
         try:
-            requesting_user = User.objects.get(pk=from_user)
+            requesting_user = info.context.user
             requested_friend = User.objects.get(pk=to_user)
             friend_request = FriendshipRequest.objects.get(
                 to_user=requested_friend)
@@ -295,12 +320,11 @@ class CancelFriendRequest(graphene.Mutation):
     friend_requests = graphene.List(FriendshipRequestType)
 
     class Arguments:
-        from_user = graphene.ID()
         to_user = graphene.ID()
 
-    def mutate(self, info, from_user, to_user):
+    def mutate(self, info, to_user):
         try:
-            from_friend = User.objects.get(pk=from_user)
+            from_friend = info.context.user
             to_friend = User.objects.get(pk=to_user)
         except from_friend.DoesNotExist or to_friend.DoesNotExist:
             return CancelFriendRequest(friend_requests=Friend.objects.unrejected_requests(user=from_friend))
@@ -320,12 +344,11 @@ class DeclineFriendRequest(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        from_user = graphene.ID()
         to_user = graphene.ID()
 
-    def mutate(self, info, from_user, to_user):
+    def mutate(self, info, to_user):
         try:
-            requesting_user = User.objects.get(pk=from_user)
+            requesting_user = info.context.user
             requested_friend = User.objects.get(pk=to_user)
             friend_request = FriendshipRequest.objects.get(
                 to_user=requested_friend)
