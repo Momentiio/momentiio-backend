@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'graphene_django',
     'imagekit',
+    'rest_framework',
+    'rest_framework.authtoken',
     'address',
     'api',
     'core',
@@ -60,7 +62,6 @@ MIDDLEWARE = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'graphql_jwt.backends.JSONWebTokenBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
@@ -139,6 +140,6 @@ MEDIA_URL = 'media/'
 GRAPHENE = {
     'SCHEMA': 'api.schema.schema',
     'MIDDLEWARE': [
-        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+        'api.middleware.TokenAuthenticationMiddleware',
     ],
 }

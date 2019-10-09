@@ -1,7 +1,7 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.models import User
 import graphene
-import graphql_jwt
+from rest_framework.authtoken.models import Token
 from graphene_django import DjangoObjectType
 
 from friendship.models import Friend, Follow, Block, FriendshipRequest
@@ -10,10 +10,44 @@ from .models import Profile
 from .query import ProfileType, ProfileUserType, UserType, FriendType, FriendshipRequestType
 
 
-class UserAuth(graphene.ObjectType):
-    token_auth = graphql_jwt.ObtainJSONWebToken.Field()
-    verify_token = graphql_jwt.Verify.Field()
-    refresh_token = graphql_jwt.Refresh.Field()
+class LoginUser(graphene.Mutation):
+    success = graphene.NonNull(graphene.Boolean)
+    account = graphene.Field(UserType)
+    token = graphene.String()
+    message = graphene.String()
+
+    class Arguments:
+        username = graphene.NonNull(graphene.String)
+        password = graphene.NonNull(graphene.String)
+
+    @staticmethod
+    def mutate(root, info, username, password):
+        user = authenticate(username=username, password=password)
+        if not user:
+            return LoginUser(success=False, message="Invalid Credentials")
+        login(info.context, user)
+        token, _ = Token.objects.get_or_create(user=user)
+        return LoginUser(success=True, account=user, token=token)
+
+
+class LoginUserMutation(graphene.ObjectType):
+    user_login = LoginUser.Field()
+
+
+class LogoutUser(graphene.Mutation):
+    success = graphene.NonNull(graphene.Boolean)
+
+    class Arguments:
+        pass
+
+    @staticmethod
+    def mutate(root, info):
+        logout(info.context)
+        return LogoutUser(success=True)
+
+
+class LogoutUserMutation(graphene.ObjectType):
+    logout_user = LogoutUser.Field()
 
 
 class CreateUser(graphene.Mutation):
