@@ -10,7 +10,6 @@ class UpdateAddress(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        user_id = graphene.ID()
         address_line1 = graphene.String()
         address_line2 = graphene.String()
         postal_code = graphene.String()
@@ -18,13 +17,9 @@ class UpdateAddress(graphene.Mutation):
         state_province = graphene.String()
         # country = graphene.String()
 
-    def mutate(self, info, user_id, address_line1, address_line2, city, state_province, postal_code):
-        try:
-            _id = int(user_id)
-            user = User.objects.get(id=_id)
-            address = user.address
-        except:
-            return UpdateAddress(errors='Looks like we cant find that user, please try again')
+    def mutate(self, info, address_line1, address_line2, city, state_province, postal_code):
+        user = info.context.user
+        address = user.address
 
         if address_line1 is not None:
             address.address_line1 = address_line1
