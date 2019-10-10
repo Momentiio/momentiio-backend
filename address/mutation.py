@@ -15,8 +15,9 @@ class UpdateAddress(graphene.Mutation):
         postal_code = graphene.String()
         city = graphene.String()
         state_province = graphene.String()
+        country_code = graphene.String()
 
-    def mutate(self, info, address_line1, address_line2, city, state_province, postal_code):
+    def mutate(self, info, address_line1, address_line2, city, state_province, postal_code, country_code):
         address, _ = Address.objects.update_or_create(
             user=info.context.user,
             defaults={
@@ -25,7 +26,7 @@ class UpdateAddress(graphene.Mutation):
                 'postal_code': postal_code,
                 'city': city,
                 'state_province': state_province,
-                'country': Country.objects.get(iso_code="US")
+                'country': Country.objects.get(iso_code=country_code)
             }
         )
         return UpdateAddress(address=address, errors=None)
