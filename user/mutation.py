@@ -6,6 +6,7 @@ from graphene_django import DjangoObjectType
 
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 from interests.models import Interest
+from interests.graphql.types import InterestType
 from .models import Profile
 from .query import ProfileType, ProfileUserType, UserType, FriendType, FriendshipRequestType
 
@@ -83,11 +84,6 @@ class CreateUserMutation(graphene.ObjectType):
 #         return UploadFile(success=True)
 
 
-class InterestType(DjangoObjectType):
-    class Meta:
-        model = Interest
-
-
 class UpdateUser(graphene.Mutation):
     user = graphene.Field(ProfileUserType)
     errors = graphene.String()
@@ -150,6 +146,23 @@ class UpdateUserProfile(graphene.Mutation):
         profile.save()
 
         return UpdateUserProfile(profile=profile, errors=None)
+
+
+class UpdateUserInterests(graphene.Mutation):
+    interests = graphene.List(InterestType)
+    errors = graphene.String()
+
+    class Arguments:
+        ids = graphene.List(graphene.ID)
+
+    def mutate(self, info, ids):
+        profile = info.context.user.profile
+        new_interests = profile.interests.add(*ids)
+        return UpdateUserInterests(interests=profile.interests.all(), errors=None)
+
+
+class UpdateUserInterestsMutation(graphene.ObjectType):
+    update_interests = UpdateUserInterests.Field()
 
 
 class UpdateUserProfileMutation(graphene.ObjectType):
