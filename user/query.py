@@ -6,7 +6,7 @@ from graphene_django import DjangoObjectType
 from address.models import Address, Country
 from friendship.models import Friend, FriendshipRequest, Follow, Block
 from social.models import Post
-from social.query import PostType
+from social.graphql.types import PostType
 from .models import Profile
 
 
