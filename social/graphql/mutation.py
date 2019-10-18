@@ -30,3 +30,48 @@ class AddPost(graphene.Mutation):
 
 class AddPostMutation(graphene.ObjectType):
     add_post = AddPost.Field()
+
+
+class UpdatePost(graphene.Mutation):
+    post = graphene.Field(PostType)
+    updated_on = graphene.String()
+    errors = graphene.String()
+
+    class Arguments:
+        post_id = graphene.ID()
+        photo = graphene.String(required=False)
+        caption = graphene.String(required=False)
+
+    def mutate(self, info, post_id, photo, caption):
+        post = Post.objects.get(id=post_id)
+        if photo is not None:
+            post.photo = photo
+        else:
+            post.photo = post.photo
+        if caption is not None:
+            post.caption = caption
+        else:
+            post.caption = post.caption
+        _updated = post.date_updated = datetime.datetime.now()
+        post.save()
+        return UpdatePost(post=post, updated_on=_updated)
+
+
+class UpdatePostMutation(graphene.ObjectType):
+    update_post = UpdatePost.Field()
+
+
+class DeletePost(graphene.Mutation):
+    deleted = graphene.Boolean()
+
+    class Arguments:
+        post_id = graphene.ID()
+
+    def mutate(self, info, post_id):
+        post = Post.objects.get(id=post_id)
+        post.delete()
+        return DeletePost(deleted=True)
+
+
+class DeletePostMutation(graphene.ObjectType):
+    delete_post = DeletePost.Field()

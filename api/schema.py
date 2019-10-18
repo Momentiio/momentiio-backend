@@ -5,7 +5,7 @@ from graphene_django import DjangoObjectType
 from address.mutation import UpdateAddressMutation
 from interests.graphql.query import InterestListQuery, GetInterests
 from social.graphql.query import PostsQuery
-from social.graphql.mutation import AddPostMutation
+from social.graphql.mutation import AddPostMutation, UpdatePostMutation, DeletePostMutation
 from user.query import UserListQuery, UserQuery
 from user.mutation import LoginUserMutation, LogoutUserMutation, AddFriendMutation, RemoveFriendMutation, CreateUserMutation, CancelFriendRequestMutation, RequestFriendMutation, AcceptFriendRequestMutation, DeclineFriendRequestMutation, UpdateUserMutation, UpdateUserProfileMutation, UpdatePrivacyMutation, UpdateHiddenMutation, UpdateUserInterestsMutation
 
@@ -22,6 +22,8 @@ class Query(
 
 class Mutation(
     AddPostMutation,
+    UpdatePostMutation,
+    DeletePostMutation,
     CreateUserMutation,
     LoginUserMutation,
     LogoutUserMutation,
