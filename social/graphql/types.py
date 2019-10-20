@@ -13,6 +13,7 @@ class CommentType(DjangoObjectType):
     class Meta:
         model = Comment
         only_fields = [
+            "id",
             "user",
             "photo",
             "content",

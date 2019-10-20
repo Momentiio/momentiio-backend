@@ -75,3 +75,102 @@ class DeletePost(graphene.Mutation):
 
 class DeletePostMutation(graphene.ObjectType):
     delete_post = DeletePost.Field()
+
+
+class LikePost(graphene.Mutation):
+    like = graphene.Field(LikeType)
+    errors = graphene.String()
+
+    class Arguments:
+        post_id = graphene.ID()
+
+    def mutate(self, info, post_id):
+        like = Like.objects.create(
+            user=info.context.user.profile,
+            post=Post.objects.get(id=post_id),
+            date_created=datetime.datetime.now()
+        )
+        return LikePost(like=like, errors=None)
+
+
+class LikePostMutation(graphene.ObjectType):
+    like_post = LikePost.Field()
+
+
+class RemoveLikePost(graphene.Mutation):
+    removed = graphene.Boolean()
+    errors = graphene.String()
+
+    class Arguments:
+        like_id = graphene.ID()
+
+    def mutate(self, info, like_id):
+        like = Like.objects.get(id=like_id)
+        like.delete()
+        return RemoveLikePost(removed=True, errors=None)
+
+
+class RemoveLikePostMutation(graphene.ObjectType):
+    remove_like = RemoveLikePost.Field()
+
+
+class AddPostComment(graphene.Mutation):
+    comment = graphene.Field(CommentType)
+    errors = graphene.String()
+
+    class Arguments:
+        post_id = graphene.ID()
+        content = graphene.String()
+
+    def mutate(self, info, post_id, content):
+        comment = Comment.objects.create(
+            user=info.context.user.profile,
+            post=Post.objects.get(id=post_id),
+            content=content,
+            date_created=datetime.datetime.now()
+        )
+        return AddPostComment(comment=comment, errors=None)
+
+
+class AddPostCommentMutation(graphene.ObjectType):
+    add_comment = AddPostComment.Field()
+
+
+class UpdatePostComment(graphene.Mutation):
+    comment = graphene.Field(CommentType)
+    errors = graphene.String()
+
+    class Arguments:
+        comment_id = graphene.ID()
+        content = graphene.String()
+
+    def mutate(self, info, comment_id, content):
+        comment = Comment.objects.get(id=comment_id)
+        if not comment:
+            return UpdatePostComment(errors="Looks like this comment has been deleted")
+        else:
+            comment.content = content
+            comment.save()
+            return UpdatePostComment(comment=comment, errors=None)
+
+
+class UpdatePostCommentMutation(graphene.ObjectType):
+    update_comment = UpdatePostComment.Field()
+
+
+class DeletePostComment(graphene.Mutation):
+    deleted = graphene.Boolean()
+    errors = graphene.String()
+
+    class Arguments:
+        comment_id = graphene.ID()
+
+    def mutate(self, info, comment_id):
+        user = info.context.user
+        comment = Comment.objects.get(id=comment_id)
+        comment.delete()
+        return DeletePostComment(deleted=True, errors=None)
+
+
+class DeletePostCommentMutation(graphene.ObjectType):
+    delete_comment = DeletePostComment.Field()
