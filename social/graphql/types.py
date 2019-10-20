@@ -1,15 +1,19 @@
 from django.db import models
-from django.contrib.auth.models import User
 import graphene
-from graphene import NonNull, ObjectType, List, Field, String, Union
 from graphene_django import DjangoObjectType
-from . import models
+from ..models import Post, Comment, Like
+
+
+class LikeType(DjangoObjectType):
+    class Meta:
+        model = Like
 
 
 class CommentType(DjangoObjectType):
     class Meta:
-        model = models.Comment
+        model = Comment
         only_fields = [
+            "id",
             "user",
             "photo",
             "content",
@@ -18,10 +22,11 @@ class CommentType(DjangoObjectType):
 
 
 class PostType(DjangoObjectType):
-    comments = List(CommentType)
+    comments = graphene.List(CommentType)
+    likes = graphene.List(LikeType)
 
     class Meta:
-        model = models.Post
+        model = Post
         only_fields = [
             "id",
             "user",
@@ -34,15 +39,5 @@ class PostType(DjangoObjectType):
     def resolve_comments(self, info):
         return self.comments.objects.all()
 
-
-# class PostComment(DjangoObjectType):
-
-
-# class PostLike(DjangoObjectType):
-
-
-class PostsQuery(ObjectType):
-    posts = NonNull(List(PostType))
-
-    def resolve_posts(self, info):
-        return models.Post.objects.all()
+    def resolve_likes(self, info):
+        return self.likes.objects.all()

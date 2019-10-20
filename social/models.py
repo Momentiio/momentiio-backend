@@ -28,27 +28,27 @@ class Post(BaseModel):
         ordering = ["-date_created"]
 
 
-class Like(BaseModel):
+class Like(models.Model):
     user = models.ForeignKey(
         Profile, on_delete=models.CASCADE, related_name="likes")
-    photo = models.ForeignKey(
+    post = models.ForeignKey(
         Post, on_delete=models.CASCADE, related_name="likes")
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user} Like"
+        return f"{self.user}{self.id} Like"
 
     class Meta:
-        unique_together = (("user", "photo"))
+        unique_together = (("user", "post"))
         ordering = ["-date_created"]
 
 
-class Comment(BaseModel):
+class Comment(models.Model):
     """A comment on a post."""
 
     user = models.ForeignKey(
         Profile, on_delete=models.CASCADE, related_name="comments")
-    photo = models.ForeignKey(
+    post = models.ForeignKey(
         Post, on_delete=models.CASCADE, related_name="comments")
 
     content = models.TextField(max_length=2000)
