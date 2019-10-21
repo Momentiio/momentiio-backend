@@ -4,7 +4,7 @@ from graphene import List, Schema, ObjectType, NonNull, ID
 from graphene_django import DjangoObjectType
 from address.mutation import UpdateAddressMutation
 from interests.graphql.query import InterestListQuery, GetInterests
-from social.graphql.query import PostsQuery
+from social.graphql.query import PostsQuery, GetPostQuery, GetPostCommentsQuery, GetPostLikesQuery
 from social.graphql.mutation import AddPostMutation, UpdatePostMutation, DeletePostMutation, LikePostMutation, RemoveLikePostMutation, AddPostCommentMutation, UpdatePostCommentMutation, DeletePostCommentMutation
 from user.query import UserListQuery, UserQuery
 from user.mutation import LoginUserMutation, LogoutUserMutation, AddFriendMutation, RemoveFriendMutation, CreateUserMutation, CancelFriendRequestMutation, RequestFriendMutation, AcceptFriendRequestMutation, DeclineFriendRequestMutation, UpdateUserMutation, UpdateUserProfileMutation, UpdatePrivacyMutation, UpdateHiddenMutation, UpdateUserInterestsMutation
@@ -13,7 +13,10 @@ from user.mutation import LoginUserMutation, LogoutUserMutation, AddFriendMutati
 class Query(
     GetInterests,
     InterestListQuery,
+    GetPostQuery,
+    GetPostLikesQuery,
     PostsQuery,
+    GetPostCommentsQuery,
     UserListQuery,
     UserQuery
 ):
