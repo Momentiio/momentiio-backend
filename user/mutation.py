@@ -304,20 +304,20 @@ class AcceptFriendRequest(graphene.Mutation):
 
     def mutate(self, info, from_user):
         try:
+            auth_user = info.context.user
             requesting_user = User.objects.get(pk=from_user)
-            requested_friend = info.context.user
             friend_request = FriendshipRequest.objects.get(
-                to_user=requested_friend)
+                to_user=auth_user)
             friend_request.accept()
             new_friend = Friend.objects.get(
-                to_user=requested_friend, from_user=requesting_user)
+                to_user=auth_user, from_user=requesting_user)
             accepted = Friend.objects.are_friends(
-                requesting_user, requested_friend) == True
+                requesting_user, auth_user) == True
 
             return AcceptFriendRequest(
                 new_friend=new_friend, accepted=accepted, errors=None)
 
-        except requested_friend.DoesNotExist:
+        except auth_user.DoesNotExist:
             return AcceptFriendRequest(errors="user no longer exists")
 
 
@@ -365,7 +365,7 @@ class DeclineFriendRequest(graphene.Mutation):
             friend_request.reject()
             return DeclineFriendRequest(friend_requests=Friend.objects.unrejected_requests(user=user), errors=None)
 
-        except requested_friend.DoesNotExist:
+        except user.DoesNotExist:
             return DeclineFriendRequest(errors="user no longer exists")
 
 
