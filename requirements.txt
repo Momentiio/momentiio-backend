@@ -18,7 +18,7 @@ gunicorn==19.8.1
 ipython
 libsass==0.14.5
 newrelic==3.2.0.91
-pillow==6.1.0
+pillow==6.2.0
 psycogreen==1.0
 psycopg2==2.7.3.1
 raven==6.7.0
