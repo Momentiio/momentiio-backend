@@ -46,15 +46,3 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
-
-
-# Create Address Fields on user creation
-# @receiver(post_save, sender=User)
-# def create_user_address(sender, instance, created, **kwargs):
-#     if created:
-#         Address.objects.create(user=instance)
-
-
-# @receiver(post_save, sender=User)
-# def save_user_address(sender, instance, **kwargs):
-#     instance.address.save()

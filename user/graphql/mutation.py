@@ -7,8 +7,9 @@ from graphene_django import DjangoObjectType
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 from interests.models import Interest
 from interests.graphql.types import InterestType
-from .models import Profile
-from .query import ProfileType, ProfileUserType, UserType, FriendType, FriendshipRequestType
+from social.graphql.types import FriendType, FriendshipRequestType
+from .types import UserType, ProfileType, FullUserType
+from ..models import Profile
 
 
 class LoginUser(graphene.Mutation):
@@ -48,11 +49,11 @@ class LogoutUser(graphene.Mutation):
 
 
 class LogoutUserMutation(graphene.ObjectType):
-    logout_user = LogoutUser.Field()
+    user_logout = LogoutUser.Field()
 
 
 class CreateUser(graphene.Mutation):
-    user = graphene.Field(ProfileUserType)
+    user = graphene.Field(UserType)
 
     class Arguments:
         username = graphene.String(required=True)
@@ -84,7 +85,7 @@ class CreateUserMutation(graphene.ObjectType):
 
 
 class UpdateUser(graphene.Mutation):
-    user = graphene.Field(ProfileUserType)
+    user = graphene.Field(UserType)
     errors = graphene.String()
 
     class Arguments:
@@ -300,25 +301,20 @@ class AcceptFriendRequest(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        from_user = graphene.ID()
+        id = graphene.String()
 
-    def mutate(self, info, from_user):
-        try:
-            auth_user = info.context.user
-            requesting_user = User.objects.get(pk=from_user)
-            friend_request = FriendshipRequest.objects.get(
-                to_user=auth_user)
-            friend_request.accept()
-            new_friend = Friend.objects.get(
-                to_user=auth_user, from_user=requesting_user)
-            accepted = Friend.objects.are_friends(
-                requesting_user, auth_user) == True
+    def mutate(self, info, id):
+        friend_request = FriendshipRequest.objects.get(
+            id=id)
+        request_user = User.objects.get(id=friend_request.from_user.id)
+        friend_request.accept()
+        new_friend = Friend.objects.get(
+            to_user=info.context.user, from_user=request_user)
+        accepted = Friend.objects.are_friends(
+            request_user, info.context.user) == True
 
-            return AcceptFriendRequest(
-                new_friend=new_friend, accepted=accepted, errors=None)
-
-        except auth_user.DoesNotExist:
-            return AcceptFriendRequest(errors="user no longer exists")
+        return AcceptFriendRequest(
+            new_friend=new_friend, accepted=accepted, errors=None)
 
 
 class AcceptFriendRequestMutation(graphene.ObjectType):

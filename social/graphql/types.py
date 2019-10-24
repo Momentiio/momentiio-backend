@@ -1,6 +1,9 @@
 from django.db import models
 import graphene
+from graphene import Field, List, String
 from graphene_django import DjangoObjectType
+from friendship.models import Friend, FriendshipRequest, Follow, Block
+
 from ..models import Post, Comment, Like
 
 
@@ -22,8 +25,8 @@ class CommentType(DjangoObjectType):
 
 
 class PostType(DjangoObjectType):
-    comments = graphene.List(CommentType)
-    likes = graphene.List(LikeType)
+    comments = List(CommentType)
+    likes = List(LikeType)
 
     class Meta:
         model = Post
@@ -41,3 +44,18 @@ class PostType(DjangoObjectType):
 
     def resolve_likes(self, info):
         return self.likes.objects.all()
+
+
+class FriendType(DjangoObjectType):
+    class Meta:
+        model = Friend
+
+
+class FriendshipRequestType(DjangoObjectType):
+    class Meta:
+        model = FriendshipRequest
+
+
+class FollowType(DjangoObjectType):
+    class Meta:
+        model = Follow
