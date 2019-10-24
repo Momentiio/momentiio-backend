@@ -1,7 +1,7 @@
-from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import User
 import graphene
-from graphene import NonNull, ObjectType, List, Field, String, Union, ID
+from graphene import NonNull, ObjectType, List, Field, String, Union, ID, Int
 from graphene_django import DjangoObjectType
 from address.models import Address, Country
 from friendship.models import Friend, FriendshipRequest, Follow, Block
@@ -149,3 +149,16 @@ class UserAuth(ObjectType):
         if user.is_anonymous:
             raise Exception('Authentication Failure!')
         return user
+
+
+class UserSearchQuery(graphene.ObjectType):
+    user_search = graphene.List(ProfileUserType, search=graphene.String(
+    ), offset=Int(default_value=0), limit=Int(default_value=20))
+
+    def resolve_user_search(self, info, offset, limit, search=None, ** kwargs):
+        if search:
+            return User.objects.filter(
+                Q(username__icontains=search)
+            ).exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
+
+        return User.objects.all().exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
