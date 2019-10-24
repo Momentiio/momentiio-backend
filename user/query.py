@@ -159,6 +159,6 @@ class UserSearchQuery(graphene.ObjectType):
         if search:
             return User.objects.filter(
                 Q(username__icontains=search)
-            ).exclude(Q(profile__is_hidden=True))
+            ).exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
 
         return User.objects.all().exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
