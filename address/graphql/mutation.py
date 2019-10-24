@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
 import graphene
 from graphene_django import DjangoObjectType
-from .models import Address, Country
-from user.query import ProfileUserType, CountryType, AddressType
+from ..models import Address, Country
+from .types import CountryType, AddressType
 
 
 class UpdateAddress(graphene.Mutation):

@@ -3,33 +3,11 @@ from django.contrib.auth.models import User
 import graphene
 from graphene import NonNull, ObjectType, List, Field, String, Union, ID, Int
 from graphene_django import DjangoObjectType
-from address.models import Address, Country
+from address.graphql.types import AddressType
 from friendship.models import Friend, FriendshipRequest, Follow, Block
 from social.models import Post
 from social.graphql.types import PostType
 from .models import Profile
-
-
-class CountryType(DjangoObjectType):
-    class Meta:
-        model = Country
-        only_fields = {
-            "iso_code",
-            "name"
-        }
-
-
-class AddressType(DjangoObjectType):
-    class Meta:
-        model = Address
-        only_fields = {
-            "address_line1",
-            "address_line2",
-            "postal_code",
-            "city",
-            "state_province",
-            "country"
-        }
 
 
 class FriendType(DjangoObjectType):
@@ -130,11 +108,24 @@ class UserListQuery(ObjectType):
         return Profile.objects.all()
 
 
-class UserQuery(ObjectType):
+class GetUserQuery(ObjectType):
     user = Field(ProfileUserType, user_id=ID())
 
     def resolve_user(self, info, user_id):
         return User.objects.get(id=user_id)
+
+
+class UserSearchQuery(graphene.ObjectType):
+    user_search = graphene.List(ProfileUserType, search=graphene.String(
+    ), offset=Int(default_value=0), limit=Int(default_value=20))
+
+    def resolve_user_search(self, info, offset, limit, search=None, ** kwargs):
+        if search:
+            return User.objects.filter(
+                Q(username__icontains=search)
+            ).exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
+
+        return User.objects.all().exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
 
 
 class UserAuth(ObjectType):
@@ -149,16 +140,3 @@ class UserAuth(ObjectType):
         if user.is_anonymous:
             raise Exception('Authentication Failure!')
         return user
-
-
-class UserSearchQuery(graphene.ObjectType):
-    user_search = graphene.List(ProfileUserType, search=graphene.String(
-    ), offset=Int(default_value=0), limit=Int(default_value=20))
-
-    def resolve_user_search(self, info, offset, limit, search=None, ** kwargs):
-        if search:
-            return User.objects.filter(
-                Q(username__icontains=search)
-            ).exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
-
-        return User.objects.all().exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
