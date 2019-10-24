@@ -156,9 +156,8 @@ class UserSearchQuery(graphene.ObjectType):
 
     def resolve_user_search(self, info, search=None, **kwargs):
         if search:
-            filter = (
+            return User.objects.filter(
                 Q(username__icontains=search)
-            )
-            return User.objects.filter(filter)
+            ).exclude(Q(profile__is_hidden=True))
 
-        return User.objects.all()
+        return User.objects.all().exclude(Q(profile__is_hidden=True))
