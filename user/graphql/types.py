@@ -1,28 +1,13 @@
-from django.db.models import Q
-from django.contrib.auth.models import User
 import graphene
-from graphene import NonNull, ObjectType, List, Field, String, Union, ID, Int
+from django.contrib.auth.models import User
+from graphene import Field, List, String
 from graphene_django import DjangoObjectType
+from friendship.models import Follow, Friend
+
 from address.graphql.types import AddressType
-from friendship.models import Friend, FriendshipRequest, Follow, Block
+from social.graphql.types import PostType, FriendshipRequestType
 from social.models import Post
-from social.graphql.types import PostType
-from .models import Profile
-
-
-class FriendType(DjangoObjectType):
-    class Meta:
-        model = Friend
-
-
-class FriendshipRequestType(DjangoObjectType):
-    class Meta:
-        model = FriendshipRequest
-
-
-class FollowType(DjangoObjectType):
-    class Meta:
-        model = Follow
+from ..models import Profile
 
 
 class UserType(DjangoObjectType):
@@ -74,7 +59,7 @@ class ProfileType(DjangoObjectType):
         return Follow.objects.following(request_user)
 
 
-class ProfileUserType(DjangoObjectType):
+class FullUserType(DjangoObjectType):
     address = Field(AddressType)
     profile = Field(ProfileType)
     friends = List(UserType)
@@ -99,44 +84,3 @@ class ProfileUserType(DjangoObjectType):
 
     def resolve_friend_request_count(self, info):
         return Friend.objects.unrejected_request_count(user=self)
-
-
-class UserListQuery(ObjectType):
-    users = NonNull(List(ProfileType))
-
-    def resolve_users(self, info):
-        return Profile.objects.all()
-
-
-class GetUserQuery(ObjectType):
-    user = Field(ProfileUserType, user_id=ID())
-
-    def resolve_user(self, info, user_id):
-        return User.objects.get(id=user_id)
-
-
-class UserSearchQuery(graphene.ObjectType):
-    user_search = graphene.List(ProfileUserType, search=graphene.String(
-    ), offset=Int(default_value=0), limit=Int(default_value=20))
-
-    def resolve_user_search(self, info, offset, limit, search=None, ** kwargs):
-        if search:
-            return User.objects.filter(
-                Q(username__icontains=search)
-            ).exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
-
-        return User.objects.all().exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
-
-
-class UserAuth(ObjectType):
-    me = Field(User)
-    users = List(User)
-
-    def resolve_users(self, info):
-        return get_user_model().objects.all()
-
-    def resolve_me(self, info):
-        user = info.context.user
-        if user.is_anonymous:
-            raise Exception('Authentication Failure!')
-        return user
