@@ -48,7 +48,7 @@ class DeleteImage(Mutation):
     @staticmethod
     def mutate(root, info, id):
         try:
-            image = Image.objects.get(uuid=id)
+            image = Image.objects.get(id=id)
             image.user = None
             image.save()
             return DeleteImage(deleted=True)
