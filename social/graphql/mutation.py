@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 import datetime
 import graphene
 from graphene_django import DjangoObjectType
+from system.graphql.mutation import create_system_image
 from .types import PostType, LikeType, CommentType
 from ..models import Post, Comment, Like
 
@@ -19,9 +20,10 @@ class AddPost(graphene.Mutation):
         user = info.context.user.profile
         if not user:
             return AddPost(errors="You must be logged in to create a post")
+        post_image = create_system_image(info, photo)
         post = Post.objects.create(
             user=user,
-            photo=photo,
+            photo=post_image.image,
             caption=caption,
             date_created=datetime.datetime.now()
         )
@@ -45,7 +47,8 @@ class UpdatePost(graphene.Mutation):
     def mutate(self, info, post_id, photo, caption):
         post = Post.objects.get(id=post_id)
         if photo is not None:
-            post.photo = photo
+            post_image = create_system_image(info, photo)
+            post.photo = post_image
         else:
             post.photo = post.photo
         if caption is not None:
