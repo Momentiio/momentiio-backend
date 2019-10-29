@@ -11,10 +11,10 @@ from momentiio.storages import PrivateMediaStorage
 
 def image_path_generator(instance, filename):
     __, ext = os.path.splitext(filename)
-    if instance.user_id:
+    if instance.user:
         path = os.path.join(
             'user_images',
-            str(instance.user_id)
+            str(instance.user.username)
         )
     else:
         path = os.path.join(
@@ -23,7 +23,7 @@ def image_path_generator(instance, filename):
         )
     return os.path.join(
         path,
-        ext
+        filename
     ).lower()
 
 
