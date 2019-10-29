@@ -6,6 +6,7 @@ from graphene_django import DjangoObjectType
 
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 from interests.models import Interest
+from system.models import create_system_image
 from interests.graphql.types import InterestType
 from social.graphql.types import FriendType, FriendshipRequestType
 from .types import UserType, ProfileType, FullUserType
@@ -113,6 +114,19 @@ class UpdateUser(graphene.Mutation):
 
 class UpdateUserMutation(graphene.ObjectType):
     update_user = UpdateUser.Field()
+
+
+class UploadProfileImage(Mutation):
+    image = graphene.NonNull(ImageType)
+
+    class Arguments:
+        url = graphene.String()
+        tags = graphene.List(graphene.NonNull(graphene.String))
+
+    @staticmethod
+    def mutate(root, info, url=None, tags=None):
+        image = create_system_image(info, url, tags)
+        return UploadProfileImage(image=image)
 
 
 class UpdateUserProfile(graphene.Mutation):
