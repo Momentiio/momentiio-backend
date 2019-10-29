@@ -3,7 +3,6 @@ import datetime
 import PIL.Image as pil
 from django.db import models
 from django.conf import settings
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 from django.contrib.auth.models import User
 from momentiio.storages import PrivateMediaStorage
@@ -25,24 +24,6 @@ def image_path_generator(instance, filename):
         path,
         filename
     ).lower()
-
-
-def create_system_image(info, url=None, tags=None):
-    user = info.context.user
-    if url:
-        image_file = SimpleUploadedFile(
-            name=os.path.basename(url).split('?')[0],
-            content=requests.get(url).content
-        )
-    else:
-        image_file = info.context.FILES['image_file']
-    image = Image.create_new(
-        user=user if not user.is_anonymous else None,
-        post_file=image_file,
-        process_jpeg=True
-    )
-
-    return image
 
 
 class Image(models.Model):

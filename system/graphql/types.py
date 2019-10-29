@@ -4,6 +4,6 @@ from django.core.validators import URLValidator
 from ..models import Image
 
 
-class Image(DjangoObjectType):
+class ImageType(DjangoObjectType):
     class Meta:
         model = Image

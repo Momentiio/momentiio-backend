@@ -6,9 +6,10 @@ from graphene_django import DjangoObjectType
 
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 from interests.models import Interest
-from system.models import create_system_image
 from interests.graphql.types import InterestType
 from social.graphql.types import FriendType, FriendshipRequestType
+from system.graphql.types import ImageType
+from system.graphql.mutation import create_system_image
 from .types import UserType, ProfileType, FullUserType
 from ..models import Profile
 
@@ -75,15 +76,6 @@ class CreateUser(graphene.Mutation):
 class CreateUserMutation(graphene.ObjectType):
     create_user = CreateUser.Field()
 
-# class UploadImageMutation(graphene.ClientIdMutation):
-#     class Input:
-#         pass
-#     success = graphene.String()
-#     @classmethod
-#     def mutate_and_get_payload(cls, root, info, **input):
-#         files = info.context.FILES
-#         return UploadFile(success=True)
-
 
 class UpdateUser(graphene.Mutation):
     user = graphene.Field(UserType)
@@ -116,17 +108,28 @@ class UpdateUserMutation(graphene.ObjectType):
     update_user = UpdateUser.Field()
 
 
-class UploadProfileImage(Mutation):
-    image = graphene.NonNull(ImageType)
+class UploadProfileImage(graphene.Mutation):
+    profile = graphene.NonNull(ProfileType)
 
     class Arguments:
         url = graphene.String()
-        tags = graphene.List(graphene.NonNull(graphene.String))
 
     @staticmethod
-    def mutate(root, info, url=None, tags=None):
-        image = create_system_image(info, url, tags)
-        return UploadProfileImage(image=image)
+    def mutate(root, info, url=None):
+        user = info.context.user
+        if user.is_anonymous:
+            raise graphene.GraphqlError(
+                'You must be logged in to change your profile image')
+        else:
+            user_profile = info.context.user.profile
+            image = create_system_image(info, url)
+            user_profile.profile_avatar = image.image
+            user_profile.save()
+            return UploadProfileImage(profile=user_profile)
+
+
+class UploadProfileImageMutation(graphene.ObjectType):
+    upload_profile_image = UploadProfileImage.Field()
 
 
 class UpdateUserProfile(graphene.Mutation):
