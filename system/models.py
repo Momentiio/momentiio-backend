@@ -33,10 +33,10 @@ class Image(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.image}"
+        return f"{self.image.image}"
 
     def get_absolute_url(self):
-        return self.image.url
+        return self.image.image
 
     @classmethod
     def create_new(cls, user=None, post_file=None, localfilename=None,
