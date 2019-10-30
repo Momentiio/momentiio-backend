@@ -12,49 +12,50 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import environ
+import dj_database_url
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'nlumic3x5-3i9z5rq$p0_=-md2&ea9%4*kpo==-0sdf4rbz-))'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 ALLOWED_HOSTS = []
 
 
 # Application definition
+THIRD_PARTY_APPS = (
+    'corsheaders',
+    'storages',
+    'graphene_django',
+    'imagekit',
+    'orderable',
+    'rest_framework',
+    'rest_framework.authtoken',
+)
 
-INSTALLED_APPS = [
+DJANGO_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'storages',
-    'graphene_django',
-    'imagekit',
-    'rest_framework',
-    'rest_framework.authtoken',
+)
+
+PROJECT_APPS = (
     'address',
     'api',
     'core',
     'friendship',
     'interests',
-    'orderable',
     'social',
     'system',
     'user',
-]
+)
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -98,6 +99,17 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': os.environ.get('DB_NAME', ''),
+#         'USER': os.environ.get('DB_USER', ''),
+#         'PASSWORD': os.environ.get('DB_PASS', ''),
+#         'HOST': 'localhost',
+#         'PORT': '8000',
+#     }
+# }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -116,24 +128,21 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-AWS_ACCESS_KEY_ID = os.environ.get('MEDIA_S3_ACCESS_KEY')
-AWS_SECRET_ACCESS_KEY = os.environ.get('MEDIA_S3_SECRET_KEY')
-AWS_STORAGE_BUCKET_NAME = 'momentiio-assets'
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
-AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
+# Api Layer
+GRAPHENE = {
+    'SCHEMA': 'api.schema.schema',
+    'MIDDLEWARE': [
+        'api.middleware.TokenAuthenticationMiddleware',
+    ],
 }
 
-AWS_STATIC_LOCATION = 'static'
-STATICFILES_STORAGE = 'momentiio.storages.StaticStorage'
-STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
-
-AWS_PUBLIC_MEDIA_LOCATION = 'media/public'
-DEFAULT_FILE_STORAGE = 'momentiio.storages.PublicMediaStorage'
-
-AWS_PRIVATE_MEDIA_LOCATION = 'media/private'
-PRIVATE_FILE_STORAGE = 'momentiio.storage.PrivateMediaStorage'
+CORS_ORIGIN_WHITELIST = (
+    'localhost:8000',
+    'localhost:8001',
+    'localhost:8800',
+    'localhost:3000'
+)
 
 
 # Internationalization
@@ -149,7 +158,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = '/static/'
@@ -157,10 +165,30 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = 'media/'
 
-# Api Layer
-GRAPHENE = {
-    'SCHEMA': 'api.schema.schema',
-    'MIDDLEWARE': [
-        'api.middleware.TokenAuthenticationMiddleware',
-    ],
+
+# Media Storage AWS
+AWS_ACCESS_KEY_ID = os.environ.get('MEDIA_S3_ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = os.environ.get('MEDIA_S3_SECRET_KEY')
+AWS_STORAGE_BUCKET_NAME = 'momentiio-assets'
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
 }
+
+AWS_STATIC_LOCATION = 'static'
+STATICFILES_STORAGE = 'momentiio.storages.StaticStorage'
+STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
+AWS_PUBLIC_MEDIA_LOCATION = 'media/public'
+DEFAULT_FILE_STORAGE = 'momentiio.storages.PublicMediaStorage'
+AWS_PRIVATE_MEDIA_LOCATION = 'media/private'
+PRIVATE_FILE_STORAGE = 'momentiio.storage.PrivateMediaStorage'
+
+# Email
+EMAIL_BACKEND = 'django.core.mail.backends.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'sawyscards@gmail.com'
+EMAIL_HOST_PASSWORD = 'Football2522!'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
