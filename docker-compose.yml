@@ -1,6 +1,11 @@
 version: "3"
 
 services:
+  db:
+    image: postgres:9.6
+    restart: always
+    volumes:
+      - postgresdata:/data/postgre
   web:
     build:
       context: .
@@ -18,11 +23,7 @@ services:
       - .env
     depends_on:
       - db
-  db:
-    image: postgres:9.6
-    restart: always
-    volumes:
-      - postgresdata:/data/postgres
+
   redis:
     image: redis:latest
 
