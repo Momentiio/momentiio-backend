@@ -56,6 +56,7 @@ class LogoutUserMutation(graphene.ObjectType):
 
 class CreateUser(graphene.Mutation):
     user = graphene.Field(UserType)
+    token = graphene.String()
 
     class Arguments:
         username = graphene.String(required=True)
@@ -69,8 +70,11 @@ class CreateUser(graphene.Mutation):
         )
         user.set_password(password)
         user.save()
+        auth_user = authenticate(username=username, password=password)
+        login(info.context, auth_user)
+        token, _ = Token.objects.get_or_create(user=auth_user)
 
-        return CreateUser(user=user)
+        return CreateUser(user=user, token=token)
 
 
 class CreateUserMutation(graphene.ObjectType):
