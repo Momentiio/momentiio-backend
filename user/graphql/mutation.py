@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model, authenticate, login, logout
-from django.contrib.auth.models import User
 import graphene
 from rest_framework.authtoken.models import Token
 from graphene_django import DjangoObjectType
@@ -10,8 +9,37 @@ from interests.graphql.types import InterestType
 from social.graphql.types import FriendType, FriendshipRequestType
 from system.graphql.types import ImageType
 from system.graphql.mutation import create_system_image
-from .types import UserType, ProfileType, FullUserType
-from ..models import Profile
+from .types import InviteUserType, UserType, ProfileType, AuthUserType
+from ..models import Profile, InviteUser
+
+
+class CreateInvite(graphene.Mutation):
+    invite_user = graphene.Field(InviteUserType)
+    sponsor = graphene.String()
+
+    class Arguments:
+        name = graphene.String(required=True)
+        email = graphene.String(required=False)
+        # phone = graphene.String(required=False)
+        note = graphene.String(required=False)
+        avatar = graphene.String(required=False)
+
+    def mutate(self, info, name, email, note, avatar):
+        sponsor = info.context.user.username
+        invite_user = InviteUser.objects.create(
+            name=name,
+            email=email,
+            # phone_number=phone,
+            note=note,
+            avatar=avatar,
+            sponsor=sponsor,
+        )
+        invite_user.save()
+        return CreateInvite(invite_user=invite_user, sponsor=sponsor)
+
+
+class CreateInviteMutation(graphene.ObjectType):
+    create_invite = CreateInvite.Field()
 
 
 class LoginUser(graphene.Mutation):
@@ -94,7 +122,7 @@ class UpdateUser(graphene.Mutation):
     def mutate(self, info, username, email, first_name, last_name):
         try:
             user = info.context.user
-        except User.DoesNotExist:
+        except get_user_model().DoesNotExist:
             return UpdateUser(errors='User could not be found')
         if username is not None:
             user.username = username
@@ -150,7 +178,7 @@ class UpdateUserProfile(graphene.Mutation):
     def mutate(self, info, profile_avatar, bio, location, birth_date, interests):
         try:
             user = info.context.user
-        except User.DoesNotExist:
+        except get_user_model().DoesNotExist:
             return UpdateUserProfile(errors='Please Login')
         profile = user.profile
         if profile_avatar is not None:
@@ -222,10 +250,9 @@ class UpdateHiddenPermission(graphene.Mutation):
     def mutate(self, info, is_hidden):
         user = info.context.user
         if user:
-            profile = user.profile
-            profile.is_hidden = is_hidden
-            profile.save()
-            return UpdateHiddenPermission(is_hidden=profile.is_hidden, errors=None)
+            user.is_hidden = is_hidden
+            user.save()
+            return UpdateHiddenPermission(is_hidden=user.is_hidden, errors=None)
         else:
             return UpdateHiddenPermission(errors="User not found, please login or create an account")
 
@@ -245,7 +272,7 @@ class RequestFriend(graphene.Mutation):
 
     def mutate(self, info, friend_id):
         _user = info.context.user
-        friend = User.objects.get(pk=friend_id)
+        friend = get_user_model().objects.get(pk=friend_id)
 
         if _user and friend:
             Friend.objects.add_friend(
@@ -269,7 +296,7 @@ class AddFriend(graphene.Mutation):
 
     def mutate(self, info, friend_id):
         user = info.context.user
-        friend = User.objects.get(pk=friend_id)
+        friend = get_user_model().objects.get(pk=friend_id)
         is_private_or_hidden = friend.profile.is_private or friend.profile.is_hidden
 
         if not is_private_or_hidden:
@@ -298,7 +325,7 @@ class RemoveFriend(graphene.Mutation):
 
     def mutate(self, info, friend_id):
         user = info.context.user
-        friend = User.objects.get(pk=friend_id)
+        friend = get_user_model().objects.get(pk=friend_id)
         are_friends = Friend.objects.are_friends(
             user, friend) == True
 
@@ -327,7 +354,7 @@ class AcceptFriendRequest(graphene.Mutation):
     def mutate(self, info, id):
         friend_request = FriendshipRequest.objects.get(
             id=id)
-        request_user = User.objects.get(id=friend_request.from_user.id)
+        request_user = get_user_model().objects.get(id=friend_request.from_user.id)
         friend_request.accept()
         new_friend = Friend.objects.get(
             to_user=info.context.user, from_user=request_user)
@@ -351,7 +378,7 @@ class CancelFriendRequest(graphene.Mutation):
     def mutate(self, info, friend_id):
         try:
             user = info.context.user
-            friend = User.objects.get(pk=friend_id)
+            friend = get_user_model().objects.get(pk=friend_id)
         except user.DoesNotExist or friend.DoesNotExist:
             return CancelFriendRequest(friend_requests=Friend.objects.unrejected_requests(user=user))
         if user and friend:
@@ -375,7 +402,7 @@ class DeclineFriendRequest(graphene.Mutation):
     def mutate(self, info, friend_id):
         try:
             user = info.context.user
-            friend = User.objects.get(pk=friend_id)
+            friend = get_user_model().objects.get(pk=friend_id)
             friend_request = FriendshipRequest.objects.get(
                 to_user=friend)
 

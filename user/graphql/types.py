@@ -1,5 +1,5 @@
 import graphene
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from graphene import Field, List, String
 from graphene_django import DjangoObjectType
 from friendship.models import Follow, Friend
@@ -7,13 +7,29 @@ from friendship.models import Follow, Friend
 from address.graphql.types import AddressType
 from social.graphql.types import PostType, FriendshipRequestType
 from social.models import Post
-from ..models import Profile
+from ..models import Profile, InviteUser
+
+
+class InviteUserType(DjangoObjectType):
+    class Meta:
+        model = InviteUser
+        only_fields = (
+            "id",
+            "sponsor",
+            "created_at",
+            "name",
+            "email",
+            "phone_number",
+            "avatar",
+            "note",
+            "expiration"
+        )
 
 
 class UserType(DjangoObjectType):
 
     class Meta:
-        model = User
+        model = get_user_model()
 
 
 class ProfileType(DjangoObjectType):
@@ -51,23 +67,24 @@ class ProfileType(DjangoObjectType):
         return Post.objects.filter(user=self.id)
 
     def resolve_followers(self, info):
-        request_user = User.objects.get(pk=self.user.id)
+        request_user = get_user_model().objects.get(pk=self.user.id)
         return Follow.objects.followers(request_user)
 
     def resolve_following(self, info):
-        request_user = User.objects.get(pk=self.user.id)
+        request_user = get_user_model().objects.get(pk=self.user.id)
         return Follow.objects.following(request_user)
 
 
-class FullUserType(DjangoObjectType):
+class AuthUserType(DjangoObjectType):
     address = Field(AddressType)
     profile = Field(ProfileType)
     friends = List(UserType)
     friend_requests = List(FriendshipRequestType)
     friend_request_count = String()
+    invites = List(InviteUserType)
 
     class Meta:
-        model = User
+        model = get_user_model()
         only_fields = {
             "id",
             "email",
@@ -84,3 +101,6 @@ class FullUserType(DjangoObjectType):
 
     def resolve_friend_request_count(self, info):
         return Friend.objects.unrejected_request_count(user=self)
+
+    def resolve_invites(self, info):
+        return self.invites.all()

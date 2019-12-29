@@ -3,8 +3,7 @@ import datetime
 import PIL.Image as pil
 from django.db import models
 from django.conf import settings
-
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from momentiio.storages import PrivateMediaStorage
 
 
@@ -29,7 +28,7 @@ def image_path_generator(instance, filename):
 class Image(models.Model):
     image = models.ImageField(upload_to=image_path_generator)
     user = models.ForeignKey(
-        User, related_name='images', on_delete=models.CASCADE)
+        get_user_model(), related_name='images', on_delete=models.CASCADE)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -25,6 +25,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1',
 # Application definition
 THIRD_PARTY_APPS = (
     'corsheaders',
+    'phonenumber_field',
     'storages',
     'graphene_django',
     'imagekit',
@@ -200,3 +201,5 @@ EMAIL_HOST_PASSWORD = 'Football2522!'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+AUTH_USER_MODEL = 'user.UserModel'
