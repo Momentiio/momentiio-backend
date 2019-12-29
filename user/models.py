@@ -48,7 +48,8 @@ class UserModel(AbstractUser, BaseModel,  TimestampMixin):
     )
     # User Fields
     username = models.CharField(max_length=50, unique=True)
-    type = models.CharField(choices=USER_TYPES, max_length=5)
+    type = models.CharField(
+        choices=USER_TYPES, default=GENERIC_USER, max_length=5)
     sponsor = models.PositiveIntegerField(
         editable=False, blank=False, default=0)
     invites = models.ManyToManyField(
