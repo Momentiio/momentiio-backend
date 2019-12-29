@@ -5,11 +5,11 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from core.mixins import TimestampMixin
 from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFit
-
+from phonenumber_field.modelfields import PhoneNumberField
 from core.models import BaseModel
+from core.mixins import TimestampMixin
 from interests.models import Interest
 
 
@@ -18,10 +18,10 @@ def invitation_expiration():
 
 
 class InviteUser(BaseModel, TimestampMixin):
-    sponsor = models.PositiveIntegerField(default=0, editable=False)
+    sponsor = models.CharField(default='0', editable=False, max_length=30)
     name = models.CharField(blank=False, max_length=100)
-    email = models.EmailField(blank=True)
-    phone = models.CharField(blank=True, max_length=15)
+    email = models.EmailField(blank=True, unique=True)
+    phone_number = PhoneNumberField(null=True, blank=True, unique=True)
     avatar = ProcessedImageField(
         upload_to="user_photos",
         format="JPEG",
@@ -30,7 +30,7 @@ class InviteUser(BaseModel, TimestampMixin):
         blank=True,
         null=True
     )
-    note = models.TextField(max_length=1000, blank=True)
+    note = models.TextField(max_length=250, blank=True)
     expiration = models.DateTimeField(
         default=invitation_expiration)
 
@@ -47,11 +47,12 @@ class UserModel(AbstractUser, BaseModel,  TimestampMixin):
         (GENERIC_USER, 'Customer')
     )
     # User Fields
-    username = models.CharField(max_length=50, unique=True)
     type = models.CharField(
         choices=USER_TYPES, default=GENERIC_USER, max_length=5)
+    username = models.CharField(max_length=30, unique=True)
+    phone_number = PhoneNumberField(null=True, blank=False, unique=True)
     sponsor = models.PositiveIntegerField(
-        editable=False, blank=False, default=0)
+        editable=False, blank=False, default=1)
     invites = models.ManyToManyField(
         InviteUser, related_name="invites")
     is_hidden = models.BooleanField(default=False)

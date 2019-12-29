@@ -8,7 +8,7 @@ from friendship.models import Friend, FriendshipRequest, Follow, Block
 from address.graphql.types import AddressType
 from social.models import Post
 from social.graphql.types import PostType, FriendType, FriendshipRequestType, FollowType
-from .types import UserType, ProfileType, FullUserType
+from .types import UserType, ProfileType, AuthUserType
 from ..models import Profile
 
 
@@ -27,7 +27,7 @@ class UserAuth(ObjectType):
 
 
 class UserSearchQuery(graphene.ObjectType):
-    user_search = graphene.List(FullUserType, search=graphene.String(
+    user_search = graphene.List(AuthUserType, search=graphene.String(
     ), offset=Int(default_value=0), limit=Int(default_value=20))
 
     def resolve_user_search(self, info, offset, limit, search=None, ** kwargs):
@@ -48,7 +48,7 @@ class GetUserQuery(ObjectType):
 
 
 class GetAuthUserProfileQuery(ObjectType):
-    user_profile = Field(FullUserType)
+    user_profile = Field(AuthUserType)
 
     def resolve_user_profile(self, info):
         profile = info.context.user

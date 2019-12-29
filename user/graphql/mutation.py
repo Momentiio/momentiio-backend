@@ -9,8 +9,37 @@ from interests.graphql.types import InterestType
 from social.graphql.types import FriendType, FriendshipRequestType
 from system.graphql.types import ImageType
 from system.graphql.mutation import create_system_image
-from .types import UserType, ProfileType, FullUserType
-from ..models import Profile
+from .types import InviteUserType, UserType, ProfileType, AuthUserType
+from ..models import Profile, InviteUser
+
+
+class CreateInvite(graphene.Mutation):
+    invite_user = graphene.Field(InviteUserType)
+    sponsor = graphene.String()
+
+    class Arguments:
+        name = graphene.String(required=True)
+        email = graphene.String(required=False)
+        # phone = graphene.String(required=False)
+        note = graphene.String(required=False)
+        avatar = graphene.String(required=False)
+
+    def mutate(self, info, name, email, note, avatar):
+        sponsor = info.context.user.username
+        invite_user = InviteUser.objects.create(
+            name=name,
+            email=email,
+            # phone_number=phone,
+            note=note,
+            avatar=avatar,
+            sponsor=sponsor,
+        )
+        invite_user.save()
+        return CreateInvite(invite_user=invite_user, sponsor=sponsor)
+
+
+class CreateInviteMutation(graphene.ObjectType):
+    create_invite = CreateInvite.Field()
 
 
 class LoginUser(graphene.Mutation):
@@ -221,10 +250,9 @@ class UpdateHiddenPermission(graphene.Mutation):
     def mutate(self, info, is_hidden):
         user = info.context.user
         if user:
-            profile = user.profile
-            profile.is_hidden = is_hidden
-            profile.save()
-            return UpdateHiddenPermission(is_hidden=profile.is_hidden, errors=None)
+            user.is_hidden = is_hidden
+            user.save()
+            return UpdateHiddenPermission(is_hidden=user.is_hidden, errors=None)
         else:
             return UpdateHiddenPermission(errors="User not found, please login or create an account")
 

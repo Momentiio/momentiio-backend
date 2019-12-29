@@ -25,6 +25,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1',
 # Application definition
 THIRD_PARTY_APPS = (
     'corsheaders',
+    'phonenumber_field',
     'storages',
     'graphene_django',
     'imagekit',

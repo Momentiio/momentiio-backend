@@ -7,7 +7,23 @@ from friendship.models import Follow, Friend
 from address.graphql.types import AddressType
 from social.graphql.types import PostType, FriendshipRequestType
 from social.models import Post
-from ..models import Profile
+from ..models import Profile, InviteUser
+
+
+class InviteUserType(DjangoObjectType):
+    class Meta:
+        model = InviteUser
+        only_fields = (
+            "id",
+            "sponsor",
+            "created_at",
+            "name",
+            "email",
+            "phone_number",
+            "avatar",
+            "note",
+            "expiration"
+        )
 
 
 class UserType(DjangoObjectType):
@@ -59,12 +75,13 @@ class ProfileType(DjangoObjectType):
         return Follow.objects.following(request_user)
 
 
-class FullUserType(DjangoObjectType):
+class AuthUserType(DjangoObjectType):
     address = Field(AddressType)
     profile = Field(ProfileType)
     friends = List(UserType)
     friend_requests = List(FriendshipRequestType)
     friend_request_count = String()
+    invites = List(InviteUserType)
 
     class Meta:
         model = get_user_model()
@@ -84,3 +101,6 @@ class FullUserType(DjangoObjectType):
 
     def resolve_friend_request_count(self, info):
         return Friend.objects.unrejected_request_count(user=self)
+
+    def resolve_invites(self, info):
+        return self.invites.all()
