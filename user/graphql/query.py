@@ -1,6 +1,6 @@
 import graphene
 from django.db.models import Q
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from graphene import NonNull, ObjectType, List, Field, String, Union, ID, Int
 from graphene_django import DjangoObjectType
 from friendship.models import Friend, FriendshipRequest, Follow, Block
@@ -13,8 +13,8 @@ from ..models import Profile
 
 
 class UserAuth(ObjectType):
-    me = Field(User)
-    users = List(User)
+    me = Field(get_user_model())
+    users = List(get_user_model())
 
     def resolve_users(self, info):
         return get_user_model().objects.all()
@@ -32,18 +32,18 @@ class UserSearchQuery(graphene.ObjectType):
 
     def resolve_user_search(self, info, offset, limit, search=None, ** kwargs):
         if search:
-            return User.objects.filter(
+            return get_user_model().objects.filter(
                 Q(username__icontains=search)
             ).exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
 
-        return User.objects.all().exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
+        return get_user_model().objects.all().exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
 
 
 class GetUserQuery(ObjectType):
     look_up_user = Field(ProfileType, user_id=ID())
 
     def resolve_look_up_user(self, info, user_id):
-        profile = User.objects.get(id=user_id).profile
+        profile = get_user_model().objects.get(id=user_id).profile
         return profile
 
 

@@ -1,5 +1,5 @@
 import graphene
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from graphene import Field, List, String
 from graphene_django import DjangoObjectType
 from friendship.models import Follow, Friend
@@ -13,7 +13,7 @@ from ..models import Profile
 class UserType(DjangoObjectType):
 
     class Meta:
-        model = User
+        model = get_user_model()
 
 
 class ProfileType(DjangoObjectType):
@@ -51,11 +51,11 @@ class ProfileType(DjangoObjectType):
         return Post.objects.filter(user=self.id)
 
     def resolve_followers(self, info):
-        request_user = User.objects.get(pk=self.user.id)
+        request_user = get_user_model().objects.get(pk=self.user.id)
         return Follow.objects.followers(request_user)
 
     def resolve_following(self, info):
-        request_user = User.objects.get(pk=self.user.id)
+        request_user = get_user_model().objects.get(pk=self.user.id)
         return Follow.objects.following(request_user)
 
 
@@ -67,7 +67,7 @@ class FullUserType(DjangoObjectType):
     friend_request_count = String()
 
     class Meta:
-        model = User
+        model = get_user_model()
         only_fields = {
             "id",
             "email",

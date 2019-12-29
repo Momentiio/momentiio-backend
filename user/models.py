@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from imagekit.models import ProcessedImageField
@@ -12,7 +12,7 @@ from address.models import Address
 
 class Profile(BaseModel):
     user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name="profile")
+        get_user_model(), on_delete=models.CASCADE, related_name="profile")
     profile_avatar = ProcessedImageField(
         upload_to="user_photos",
         format="JPEG",
@@ -37,12 +37,12 @@ class Profile(BaseModel):
         return user.get_full_name()
 
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=get_user_model())
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
 
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=get_user_model())
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()

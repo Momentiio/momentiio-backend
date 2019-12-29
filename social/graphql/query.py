@@ -1,10 +1,9 @@
+from ..models import Post, Comment, Like
+from .types import PostType, CommentType, LikeType
+from graphene_django import DjangoObjectType
 import graphene
 from django.db import models
-from django.contrib.auth.models import User
 from graphene import Field, List, Int, ID, NonNull, ObjectType
-from graphene_django import DjangoObjectType
-from .types import PostType, CommentType, LikeType
-from ..models import Post, Comment, Like
 
 
 class GetPostQuery(ObjectType):
