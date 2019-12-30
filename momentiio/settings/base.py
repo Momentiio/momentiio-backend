@@ -49,6 +49,7 @@ PROJECT_APPS = (
     'core',
     'friendship',
     'interests',
+    'invites',
     'social',
     'system',
     'user',
@@ -203,3 +204,7 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 AUTH_USER_MODEL = 'user.UserModel'
+
+
+# User Invite Settings
+INVITE_USER_EXPIRATION = 12

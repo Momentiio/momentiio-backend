@@ -5,25 +5,10 @@ from graphene_django import DjangoObjectType
 from friendship.models import Follow, Friend
 
 from address.graphql.types import AddressType
+from invites.graphql.types import InviteUserType
 from social.graphql.types import PostType, FriendshipRequestType
 from social.models import Post
-from ..models import Profile, InviteUser
-
-
-class InviteUserType(DjangoObjectType):
-    class Meta:
-        model = InviteUser
-        only_fields = (
-            "id",
-            "sponsor",
-            "created_at",
-            "name",
-            "email",
-            "phone_number",
-            "avatar",
-            "note",
-            "expiration"
-        )
+from ..models import Profile
 
 
 class UserType(DjangoObjectType):
@@ -51,7 +36,6 @@ class ProfileType(DjangoObjectType):
             "birth_date",
             "interests",
             "is_private",
-            "is_hidden"
         }
 
     def resolve_user_name(self, info):
@@ -81,7 +65,6 @@ class AuthUserType(DjangoObjectType):
     friends = List(UserType)
     friend_requests = List(FriendshipRequestType)
     friend_request_count = String()
-    invites = List(InviteUserType)
 
     class Meta:
         model = get_user_model()
@@ -91,6 +74,7 @@ class AuthUserType(DjangoObjectType):
             "username",
             "first_name",
             "last_name",
+            "invites"
         }
 
     def resolve_friends(self, info):
@@ -101,6 +85,3 @@ class AuthUserType(DjangoObjectType):
 
     def resolve_friend_request_count(self, info):
         return Friend.objects.unrejected_request_count(user=self)
-
-    def resolve_invites(self, info):
-        return self.invites.all()
