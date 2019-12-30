@@ -11,31 +11,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from core.models import BaseModel
 from core.mixins import TimestampMixin
 from interests.models import Interest
-
-
-def invitation_expiration():
-    return timezone.now() + timezone.timedelta(days=12)
-
-
-class InviteUser(BaseModel, TimestampMixin):
-    sponsor = models.CharField(default='0', editable=False, max_length=30)
-    name = models.CharField(blank=False, max_length=100)
-    email = models.EmailField(blank=True, unique=True)
-    phone_number = PhoneNumberField(null=True, blank=True, unique=True)
-    avatar = ProcessedImageField(
-        upload_to="user_photos",
-        format="JPEG",
-        options={"quality": 90},
-        processors=[ResizeToFit(width=1200, height=1200)],
-        blank=True,
-        null=True
-    )
-    note = models.TextField(max_length=250, blank=True)
-    expiration = models.DateTimeField(
-        default=invitation_expiration)
-
-    def __str__(self):
-        return f"{self.name}"
+from invites.models import InviteUser
 
 
 class UserModel(AbstractUser, BaseModel,  TimestampMixin):
@@ -50,9 +26,8 @@ class UserModel(AbstractUser, BaseModel,  TimestampMixin):
     type = models.CharField(
         choices=USER_TYPES, default=GENERIC_USER, max_length=5)
     username = models.CharField(max_length=30, unique=True)
-    phone_number = PhoneNumberField(null=True, blank=False, unique=True)
-    sponsor = models.PositiveIntegerField(
-        editable=False, blank=False, default=1)
+    phone_number = PhoneNumberField(null=True, unique=True)
+    sponsor = models.UUIDField(blank=False, null=False)
     invites = models.ManyToManyField(
         InviteUser, related_name="invites")
     is_hidden = models.BooleanField(default=False)
