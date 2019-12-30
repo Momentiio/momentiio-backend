@@ -33,11 +33,11 @@ class UserModel(AbstractUser, BaseModel,  TimestampMixin):
     is_hidden = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user.username}"
+        return f"{self.username}"
 
     @property
     def full_name(self):
-        return ' '.join(filter(bool, (self.user.first_name, self.user.last_name)))
+        return ' '.join(filter(bool, (self.first_name, self.last_name)))
 
 
 class Profile(BaseModel):
