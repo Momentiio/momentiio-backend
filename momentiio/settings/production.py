@@ -14,7 +14,8 @@ DATABASES['default']['CONN_MAX_AGE'] = 500
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-ALLOWED_HOSTS = ['*', 'api-momentiio.herokuapp.com', 'momentiio.com']
+ALLOWED_HOSTS = ['*', 'api-momentiio.herokuapp.com',
+                 'http://www.momentiio.com']
 
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
