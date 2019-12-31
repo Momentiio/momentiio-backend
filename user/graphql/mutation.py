@@ -200,7 +200,7 @@ class UpdatePrivacyPermission(graphene.Mutation):
         user = info.context.user
         if user:
             user_privacy = user.is_private = is_private
-            user_privacy.save()
+            user.save()
             return UpdatePrivacyPermission(is_private=user.is_private, errors=None)
         else:
             return UpdatePrivacyPermission(errors="User not found, please login or create an account")
