@@ -15,7 +15,7 @@ from ..models import Profile
 
 class LoginUser(graphene.Mutation):
     success = graphene.NonNull(graphene.Boolean)
-    account = graphene.Field(UserType)
+    account = graphene.Field(AuthUserType)
     token = graphene.String()
     message = graphene.String()
 
@@ -54,7 +54,7 @@ class LogoutUserMutation(graphene.ObjectType):
 
 
 class CreateUser(graphene.Mutation):
-    user = graphene.Field(UserType)
+    user = graphene.Field(AuthUserType)
     token = graphene.String()
 
     class Arguments:
@@ -95,13 +95,13 @@ class UpdateUser(graphene.Mutation):
             user = info.context.user
         except get_user_model().DoesNotExist:
             return UpdateUser(errors='User could not be found')
-        if username is not None:
+        if username:
             user.username = username
-        if email is not None:
+        if email:
             user.email = email
-        if first_name is not None:
+        if first_name:
             user.first_name = first_name
-        if last_name is not None:
+        if last_name:
             user.last_name = last_name
         user.save()
         return UpdateUser(user=user, errors=None)
@@ -152,16 +152,16 @@ class UpdateUserProfile(graphene.Mutation):
         except get_user_model().DoesNotExist:
             return UpdateUserProfile(errors='Please Login')
         profile = user.profile
-        if profile_avatar is not None:
+        if profile_avatar:
             profile.profile_avatar = profile_avatar
-        if bio is not None:
+        if bio:
             profile.bio = bio
-        if location is not None:
+        if location:
             profile.location = location
-        if birth_date is not None:
+        if birth_date:
             profile.birth_date = birth_date
-        if interests is not None:
-            profile.interests = interests
+        if interests:
+            profile.interests = profile.interests.add(*interests)
 
         profile.save()
 
@@ -199,10 +199,9 @@ class UpdatePrivacyPermission(graphene.Mutation):
     def mutate(self, info, is_private):
         user = info.context.user
         if user:
-            profile = user.profile
-            profile.is_private = is_private
-            profile.save()
-            return UpdatePrivacyPermission(is_private=profile.is_private, errors=None)
+            user_privacy = user.profile.is_private = is_private
+            user_privacy.save()
+            return UpdatePrivacyPermission(is_private=user.is_private, errors=None)
         else:
             return UpdatePrivacyPermission(errors="User not found, please login or create an account")
 

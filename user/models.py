@@ -32,6 +32,7 @@ class UserModel(AbstractUser, BaseModel,  TimestampMixin):
     invites = models.ManyToManyField(
         InviteUser, related_name="invites")
     is_hidden = models.BooleanField(default=False)
+    is_private = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.username}"
@@ -56,8 +57,6 @@ class Profile(BaseModel):
     location = models.CharField(max_length=30, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     interests = models.ManyToManyField(Interest)
-    is_private = models.BooleanField(default=False)
-    is_hidden = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username}"

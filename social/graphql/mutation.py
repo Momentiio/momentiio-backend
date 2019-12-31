@@ -45,12 +45,12 @@ class UpdatePost(graphene.Mutation):
 
     def mutate(self, info, post_id, photo, caption):
         post = Post.objects.get(id=post_id)
-        if photo is not None:
+        if photo:
             post_image = create_system_image(info, photo)
             post.photo = post_image
         else:
             post.photo = post.photo
-        if caption is not None:
+        if caption:
             post.caption = caption
         else:
             post.caption = post.caption
