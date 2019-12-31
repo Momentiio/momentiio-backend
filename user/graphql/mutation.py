@@ -199,7 +199,7 @@ class UpdatePrivacyPermission(graphene.Mutation):
     def mutate(self, info, is_private):
         user = info.context.user
         if user:
-            user_privacy = user.profile.is_private = is_private
+            user_privacy = user.is_private = is_private
             user_privacy.save()
             return UpdatePrivacyPermission(is_private=user.is_private, errors=None)
         else:
