@@ -27,7 +27,8 @@ class UserModel(AbstractUser, BaseModel,  TimestampMixin):
         choices=USER_TYPES, default=GENERIC_USER, max_length=5)
     username = models.CharField(max_length=30, unique=True)
     phone_number = PhoneNumberField(null=True, unique=True)
-    sponsor = models.UUIDField(blank=False, null=False)
+    sponsor = models.UUIDField(
+        blank=False, null=False, default="f0a066f6-2281-468e-bdba-2ca79db5e9b4")
     invites = models.ManyToManyField(
         InviteUser, related_name="invites")
     is_hidden = models.BooleanField(default=False)
