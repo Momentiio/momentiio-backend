@@ -12,9 +12,23 @@ from ..models import Profile
 
 
 class UserType(DjangoObjectType):
+    profile_avatar = graphene.String()
 
     class Meta:
         model = get_user_model()
+        only_fields = {
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "dateJoined",
+            "is_hidden",
+            "is_private",
+        }
+
+        def resolve_profile_avatar(self, info):
+            return self.user.profile.profile_avatar
 
 
 class ProfileType(DjangoObjectType):
@@ -29,13 +43,11 @@ class ProfileType(DjangoObjectType):
         model = Profile
         only_fields = {
             "id",
-            "user",
             "profile_avatar",
             "bio",
             "location",
             "birth_date",
             "interests",
-            "is_private",
         }
 
     def resolve_user_name(self, info):
@@ -61,7 +73,6 @@ class ProfileType(DjangoObjectType):
 
 class AuthUserType(DjangoObjectType):
     address = Field(AddressType)
-    profile = Field(ProfileType)
     friends = List(UserType)
     friend_requests = List(FriendshipRequestType)
     friend_request_count = String()
@@ -70,10 +81,17 @@ class AuthUserType(DjangoObjectType):
         model = get_user_model()
         only_fields = {
             "id",
-            "email",
             "username",
             "first_name",
             "last_name",
+            "type",
+            "phone_number",
+            "email",
+            "is_active",
+            "sponsor",
+            "date_joined",
+            "is_hidden",
+            "is_private",
             "invites"
         }
 

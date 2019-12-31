@@ -8,7 +8,7 @@ from invites.graphql.mutation import CreateInviteMutation
 from social.graphql.query import PostsQuery, GetPostQuery, GetPostCommentsQuery, GetPostLikesQuery
 from social.graphql.mutation import AddPostMutation, UpdatePostMutation, DeletePostMutation, LikePostMutation, RemoveLikePostMutation, AddPostCommentMutation, UpdatePostCommentMutation, DeletePostCommentMutation
 from system.graphql.mutation import ImageMutation
-from user.graphql.query import GetUserQuery, UserSearchQuery, GetAuthUserProfileQuery
+from user.graphql.query import GetUserProfileQuery, UserSearchQuery, GetAuthUserProfileQuery
 from user.graphql.mutation import LoginUserMutation, LogoutUserMutation, AddFriendMutation, RemoveFriendMutation, CreateUserMutation, CancelFriendRequestMutation, RequestFriendMutation, AcceptFriendRequestMutation, DeclineFriendRequestMutation, UpdateUserMutation, UpdateUserProfileMutation, UploadProfileImageMutation, UpdatePrivacyMutation, UpdateHiddenMutation, UpdateUserInterestsMutation
 
 
@@ -20,7 +20,7 @@ class Query(
     PostsQuery,
     GetPostCommentsQuery,
     GetAuthUserProfileQuery,
-    GetUserQuery,
+    GetUserProfileQuery,
     UserSearchQuery
 ):
     pass

@@ -26,30 +26,30 @@ class UserAuth(ObjectType):
         return user
 
 
-class UserSearchQuery(graphene.ObjectType):
-    user_search = graphene.List(AuthUserType, search=graphene.String(
+class UserSearchQuery(ObjectType):
+    user_search = graphene.List(UserType, search=graphene.String(
     ), offset=Int(default_value=0), limit=Int(default_value=20))
 
     def resolve_user_search(self, info, offset, limit, search=None, ** kwargs):
         if search:
             return get_user_model().objects.filter(
                 Q(username__icontains=search)
-            ).exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
+            ).exclude(Q(is_hidden=True)).distinct()[offset:offset+limit]
 
-        return get_user_model().objects.all().exclude(Q(profile__is_hidden=True)).distinct()[offset:offset+limit]
+        return get_user_model().objects.all().exclude(Q(is_hidden=True)).distinct()[offset:offset+limit]
 
 
-class GetUserQuery(ObjectType):
-    look_up_user = Field(ProfileType, user_id=ID())
+class GetUserProfileQuery(ObjectType):
+    get_user_profile = Field(ProfileType, username=String())
 
-    def resolve_look_up_user(self, info, user_id):
-        profile = get_user_model().objects.get(id=user_id).profile
+    def resolve_get_user_profile(self, info, username):
+        profile = get_user_model().objects.get(username=username).profile
         return profile
 
 
 class GetAuthUserProfileQuery(ObjectType):
-    user_profile = Field(AuthUserType)
+    get_auth_user_profile = Field(ProfileType)
 
-    def resolve_user_profile(self, info):
-        profile = info.context.user
+    def resolve_get_auth_user_profile(self, info):
+        profile = info.context.user.profile
         return profile
