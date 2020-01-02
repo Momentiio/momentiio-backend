@@ -32,7 +32,7 @@ class UserType(DjangoObjectType):
 
 
 class ProfileType(DjangoObjectType):
-    user_name = String()
+    username = String()
     full_name = String()
     address = Field(AddressType)
     posts = List(PostType)
@@ -50,7 +50,7 @@ class ProfileType(DjangoObjectType):
             "interests",
         }
 
-    def resolve_user_name(self, info):
+    def resolve_username(self, info):
         return self.user.username
 
     def resolve_full_name(self, info):
