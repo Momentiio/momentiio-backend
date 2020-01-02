@@ -72,6 +72,7 @@ class ProfileType(DjangoObjectType):
 
 
 class AuthUserType(DjangoObjectType):
+    profileAvatar = graphene.String()
     address = Field(AddressType)
     friends = List(UserType)
     friend_requests = List(FriendshipRequestType)
@@ -94,6 +95,9 @@ class AuthUserType(DjangoObjectType):
             "is_private",
             "invites"
         }
+
+    def resolve_profile_avatar(self, info):
+        return self.user.profile.profile_avatar
 
     def resolve_friends(self, info):
         return Friend.objects.friends(user=self)
