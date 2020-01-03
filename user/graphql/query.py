@@ -39,6 +39,16 @@ class UserSearchQuery(ObjectType):
         return get_user_model().objects.all().exclude(Q(is_hidden=True)).distinct()[offset:offset+limit]
 
 
+class GetAuthUserQuery(ObjectType):
+    get_auth_user = Field(AuthUserType)
+
+    def resolve_get_auth_user(self, info):
+        user = get_user_model().objects.get(id=info.context.user.id)
+        if user.is_anonymous:
+            raise Exception('You need to login')
+        return user
+
+
 class GetUserProfileQuery(ObjectType):
     get_user_profile = Field(ProfileType, username=String())
 
