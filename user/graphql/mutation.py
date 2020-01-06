@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model, authenticate, login, logout
 import graphene
 from rest_framework.authtoken.models import Token
+from graphql import GraphQLError
 from graphene_django import DjangoObjectType
 
 from friendship.models import Friend, Follow, Block, FriendshipRequest
@@ -53,6 +54,21 @@ class LogoutUserMutation(graphene.ObjectType):
     user_logout = LogoutUser.Field()
 
 
+class LookUpUsername(graphene.Mutation):
+    is_taken = graphene.Boolean()
+
+    class Arguments:
+        username = graphene.String(required=True)
+
+    def mutate(self, info, username):
+        is_taken = get_user_model().objects.filter(username=username)
+        return LookUpUsername(is_taken=is_taken)
+
+
+class LookUpUsernameMutation(graphene.ObjectType):
+    lookup_username = LookUpUsername.Field()
+
+
 class CreateUser(graphene.Mutation):
     user = graphene.Field(AuthUserType)
     token = graphene.String()
@@ -63,21 +79,59 @@ class CreateUser(graphene.Mutation):
         email = graphene.String(required=True)
 
     def mutate(self, info, username, password, email):
-        user = get_user_model()(
-            username=username,
-            email=email,
-        )
-        user.set_password(password)
-        user.save()
-        auth_user = authenticate(username=username, password=password)
-        login(info.context, auth_user)
-        token, _ = Token.objects.get_or_create(user=auth_user)
-
+        username_taken = get_user_model().objects.filter(username=username)
+        if username_taken:
+            raise GraphQLError(
+                'This username is already in use')
+        else:
+            user = get_user_model()(
+                username=username,
+                email=email,
+            )
+            user.set_password(password)
+            user.save()
+            auth_user = authenticate(username=username, password=password)
+            login(info.context, auth_user)
+            token, _ = Token.objects.get_or_create(user=auth_user)
         return CreateUser(user=user, token=token)
 
 
 class CreateUserMutation(graphene.ObjectType):
     create_user = CreateUser.Field()
+
+
+class PauseAccount(graphene.Mutation):
+    is_active = graphene.Boolean()
+
+    class Arguments:
+        pause_account = graphene.Boolean()
+
+    def mutate(self, info, pause_account):
+        user = info.context.user
+        if pause_account:
+            user.is_active = False
+            user.save()
+        else:
+            user.is_active = True
+            user.save()
+        return PauseAccount(is_active=user.is_active)
+
+
+class PauseAccountMutation(graphene.ObjectType):
+    pause_account = PauseAccount.Field()
+
+
+class DeleteUser(graphene.Mutation):
+    user_deleted = graphene.Boolean()
+
+    def mutate(self, info):
+        user = info.context.user
+        user.delete()
+        return DeleteUser(user_deleted=True)
+
+
+class DeleteUserMutation(graphene.ObjectType):
+    delete_user = DeleteUser.Field()
 
 
 class UpdateUser(graphene.Mutation):
@@ -93,8 +147,8 @@ class UpdateUser(graphene.Mutation):
     def mutate(self, info, username, email, first_name, last_name):
         try:
             user = info.context.user
-        except get_user_model().DoesNotExist:
-            return UpdateUser(errors='User could not be found')
+        except user.DoesNotExist:
+            return UpdateUser(errors='You must be logged in to make these changes')
         if username:
             user.username = username
         if email:
@@ -121,7 +175,7 @@ class UploadProfileImage(graphene.Mutation):
     def mutate(root, info, url=None):
         user = info.context.user
         if user.is_anonymous:
-            raise graphene.GraphqlError(
+            raise graphql.GraphqlError(
                 'You must be logged in to change your profile image')
         else:
             user_profile = info.context.user.profile
@@ -168,6 +222,10 @@ class UpdateUserProfile(graphene.Mutation):
         return UpdateUserProfile(profile=profile, errors=None)
 
 
+class UpdateUserProfileMutation(graphene.ObjectType):
+    update_profile = UpdateUserProfile.Field()
+
+
 class UpdateUserInterests(graphene.Mutation):
     interests = graphene.List(InterestType)
     errors = graphene.String()
@@ -183,10 +241,6 @@ class UpdateUserInterests(graphene.Mutation):
 
 class UpdateUserInterestsMutation(graphene.ObjectType):
     update_interests = UpdateUserInterests.Field()
-
-
-class UpdateUserProfileMutation(graphene.ObjectType):
-    update_profile = UpdateUserProfile.Field()
 
 
 class UpdatePrivacyPermission(graphene.Mutation):
