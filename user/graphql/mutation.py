@@ -100,6 +100,27 @@ class CreateUserMutation(graphene.ObjectType):
     create_user = CreateUser.Field()
 
 
+class PauseAccount(graphene.Mutation):
+    is_active = graphene.Boolean()
+
+    class Arguments:
+        pause_account = graphene.Boolean()
+
+    def mutate(self, info, pause_account):
+        user = info.context.user
+        if pause_account:
+            user.is_active = False
+            user.save()
+        else:
+            user.is_active = True
+            user.save()
+        return PauseAccount(is_active=user.is_active)
+
+
+class PauseAccountMutation(graphene.ObjectType):
+    pause_account = PauseAccount.Field()
+
+
 class DeleteUser(graphene.Mutation):
     user_deleted = graphene.Boolean()
 
@@ -126,8 +147,8 @@ class UpdateUser(graphene.Mutation):
     def mutate(self, info, username, email, first_name, last_name):
         try:
             user = info.context.user
-        except get_user_model().DoesNotExist:
-            return UpdateUser(errors='User could not be found')
+        except user.DoesNotExist:
+            return UpdateUser(errors='You must be logged in to make these changes')
         if username:
             user.username = username
         if email:
@@ -201,6 +222,10 @@ class UpdateUserProfile(graphene.Mutation):
         return UpdateUserProfile(profile=profile, errors=None)
 
 
+class UpdateUserProfileMutation(graphene.ObjectType):
+    update_profile = UpdateUserProfile.Field()
+
+
 class UpdateUserInterests(graphene.Mutation):
     interests = graphene.List(InterestType)
     errors = graphene.String()
@@ -216,10 +241,6 @@ class UpdateUserInterests(graphene.Mutation):
 
 class UpdateUserInterestsMutation(graphene.ObjectType):
     update_interests = UpdateUserInterests.Field()
-
-
-class UpdateUserProfileMutation(graphene.ObjectType):
-    update_profile = UpdateUserProfile.Field()
 
 
 class UpdatePrivacyPermission(graphene.Mutation):
