@@ -35,3 +35,19 @@ class CreateInvite(graphene.Mutation):
 
 class CreateInviteMutation(graphene.ObjectType):
     create_invite = CreateInvite.Field()
+
+
+class DeleteInvite(graphene.Mutation):
+    is_deleted = graphene.Boolean()
+
+    class Arguments:
+        invite_id = graphene.ID()
+
+    def mutate(self, info, invite_id):
+        invite = InviteUser.objects.filter(id=invite_id)
+        invite.delete()
+        return DeleteInvite(is_deleted=True)
+
+
+class DeleteInviteMutation(graphene.ObjectType):
+    delete_invite = DeleteInvite.Field()
