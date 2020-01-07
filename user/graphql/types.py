@@ -5,7 +5,7 @@ from graphene_django import DjangoObjectType
 from friendship.models import Follow, Friend
 
 from address.graphql.types import AddressType
-from invites.graphql.types import InviteUserType
+from invites.graphql.types import InviteType
 from social.graphql.types import PostType, FriendshipRequestType
 from social.models import Post
 from ..models import Profile

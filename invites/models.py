@@ -1,3 +1,4 @@
+import secrets
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -14,8 +15,10 @@ def invitation_expiration():
     return timezone.now() + timezone.timedelta(days=settings.INVITE_USER_EXPIRATION)
 
 
-class InviteUser(BaseModel, TimestampMixin):
-    name = models.CharField(blank=False, max_length=100)
+class Invite(BaseModel, TimestampMixin):
+    token = models.CharField(max_length=100, unique=True)
+    first_name = models.CharField(blank=False, max_length=100)
+    last_name = models.CharField(blank=False, max_length=100)
     email = models.EmailField(blank=True, unique=True)
     phone_number = PhoneNumberField(null=True, blank=True, unique=True)
     avatar = ProcessedImageField(
@@ -32,4 +35,4 @@ class InviteUser(BaseModel, TimestampMixin):
         default=invitation_expiration)
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.first_name}"
