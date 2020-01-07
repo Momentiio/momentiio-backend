@@ -36,3 +36,7 @@ class Invite(BaseModel, TimestampMixin):
 
     def __str__(self):
         return f"{self.first_name}"
+
+    @property
+    def is_expired(self):
+        invite_exp = self.expiration > timezone.now()

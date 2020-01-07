@@ -51,6 +51,9 @@ class ClaimInvite(graphene.Mutation):
     def mutate(self, info, invite_token):
         try:
             invite = Invite.objects.get(token=invite_token)
+            if invite.is_expired():
+                invite.delete()
+                raise graphene.GraphQLError('Your Invite has expired')
         except invite.DoesNotExist:
             raise graphene.GraphQLError('This is not a valid Invite code')
         return ClaimInvite(invite=invite)
