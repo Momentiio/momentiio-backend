@@ -11,7 +11,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from core.models import BaseModel
 from core.mixins import TimestampMixin
 from interests.models import Interest
-from invites.models import InviteUser
+from invites.models import Invite
 
 
 class UserModel(AbstractUser, BaseModel,  TimestampMixin):
@@ -30,7 +30,7 @@ class UserModel(AbstractUser, BaseModel,  TimestampMixin):
     sponsor = models.UUIDField(
         blank=False, null=False, default="f0a066f6-2281-468e-bdba-2ca79db5e9b4")
     invites = models.ManyToManyField(
-        InviteUser, related_name="invites")
+        Invite, related_name="invites")
     is_hidden = models.BooleanField(default=False)
     is_private = models.BooleanField(default=False)
 

@@ -1,16 +1,18 @@
 import graphene
 from graphene_django import DjangoObjectType
-from ..models import InviteUser
+from ..models import Invite
 
 
-class InviteUserType(DjangoObjectType):
+class InviteType(DjangoObjectType):
     class Meta:
-        model = InviteUser
+        model = Invite
         only_fields = (
             "id",
+            "token",
             "sponsor",
             "created_at",
-            "name",
+            "first_name",
+            "last_name",
             "email",
             "phone_number",
             "avatar",
