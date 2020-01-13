@@ -16,6 +16,7 @@ django-storages[boto3]==1.6.6
 gevent==1.2.2
 greenlet==0.4.13
 graphene-django==2.0
+graphene-file-upload==1.2.2
 gunicorn==19.8.1
 ipython
 libsass==0.14.5
