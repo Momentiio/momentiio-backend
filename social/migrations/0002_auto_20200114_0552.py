@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='comment',
             name='comment',
-            field=models.TextField(max_length=500),
+            field=models.TextField(default="", max_length=500),
             preserve_default=False,
         ),
     ]
