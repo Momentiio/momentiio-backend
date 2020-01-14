@@ -122,13 +122,13 @@ class AddPostComment(graphene.Mutation):
 
     class Arguments:
         post_id = graphene.ID()
-        content = graphene.String()
+        comment = graphene.String()
 
-    def mutate(self, info, post_id, content):
+    def mutate(self, info, post_id, comment):
         comment = Comment.objects.create(
             user=info.context.user.profile,
             post=Post.objects.get(id=post_id),
-            content=content,
+            comment=comment,
             date_created=datetime.datetime.now()
         )
         return AddPostComment(comment=comment, errors=None)
@@ -144,14 +144,14 @@ class UpdatePostComment(graphene.Mutation):
 
     class Arguments:
         comment_id = graphene.ID()
-        content = graphene.String()
+        comment = graphene.String()
 
-    def mutate(self, info, comment_id, content):
+    def mutate(self, info, comment_id, comment):
         comment = Comment.objects.get(id=comment_id)
         if not comment:
             return UpdatePostComment(errors="Looks like this comment has been deleted")
         else:
-            comment.content = content
+            comment.comment = comment
             comment.save()
             return UpdatePostComment(comment=comment, errors=None)
 

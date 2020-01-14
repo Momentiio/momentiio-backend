@@ -1,6 +1,6 @@
 from django.db import models
 import graphene
-from graphene import Field, List, String
+from graphene import Field, Int, List, String
 from graphene_django import DjangoObjectType
 from friendship.models import Friend, FriendshipRequest, Follow, Block
 
@@ -19,14 +19,15 @@ class CommentType(DjangoObjectType):
             "id",
             "user",
             "photo",
-            "content",
+            "comment",
             "date_created"
         ]
 
 
 class PostType(DjangoObjectType):
-    comments = List(CommentType)
-    likes = List(LikeType)
+    comment_count = Int()
+    like_count = Int()
+    recent_comments = List(CommentType)
 
     class Meta:
         model = Post
@@ -39,11 +40,14 @@ class PostType(DjangoObjectType):
             "date_updated"
         ]
 
-    def resolve_comments(self, info):
-        return self.comments.all()
+    def resolve_comment_count(self, info):
+        return self.comments.all().count()
 
-    def resolve_likes(self, info):
-        return self.likes.all()
+    def resolve_like_count(self, info):
+        return self.likes.all().count()
+
+    def resolve_recent_comments(self, info):
+        return self.comments.all().order_by('-date_created')[:3]
 
 
 class FriendType(DjangoObjectType):
