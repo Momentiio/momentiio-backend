@@ -40,10 +40,10 @@ class PostType(DjangoObjectType):
         ]
 
     def resolve_comments(self, info):
-        return self.comments.objects.all()
+        return self.comments.all()
 
     def resolve_likes(self, info):
-        return self.likes.objects.all()
+        return self.likes.all()
 
 
 class FriendType(DjangoObjectType):

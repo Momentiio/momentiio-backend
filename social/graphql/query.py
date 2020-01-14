@@ -10,7 +10,8 @@ class GetPostQuery(ObjectType):
     post = Field(PostType, post_id=ID())
 
     def resolve_post(self, info, post_id):
-        return Post.objects.get(id=post_id)
+        post = Post.objects.get(id=post_id)
+        return post
 
 
 class GetPostCommentsQuery(ObjectType):
@@ -27,7 +28,7 @@ class GetPostLikesQuery(ObjectType):
     post_likes = List(LikeType, post_id=ID(
     ), offset=Int(default_value=0), limit=Int(default_value=20))
 
-    def resolve_post_like(self, info, post_id, offset, limit):
+    def resolve_post_likes(self, info, post_id, offset, limit):
         post = Post.objects.get(id=post_id)
         likes = Like.objects.filter(post=post_id)
         return likes.distinct()[offset:offset+limit]
