@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 
 import graphene
 from graphene_django import DjangoObjectType
-from user.graphql.types import AuthUserType
+from user.graphql.types import UserType
 from system.graphql.mutation import create_system_image
 from .types import InviteType
 from ..models import Invite
@@ -114,7 +114,7 @@ class DeleteInviteMutation(graphene.ObjectType):
 
 
 class CreateUserFromInvite(graphene.Mutation):
-    user = graphene.Field(AuthUserType)
+    user = graphene.Field(UserType)
 
     class Arguments:
         invite_id = graphene.String()

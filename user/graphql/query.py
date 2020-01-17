@@ -8,7 +8,7 @@ from friendship.models import Friend, FriendshipRequest, Follow, Block
 from address.graphql.types import AddressType
 from social.models import Post
 from social.graphql.types import PostType, FriendType, FriendshipRequestType, FollowType
-from .types import UserType, ProfileType, AuthUserType
+from .types import UserType, ProfileType
 from ..models import Profile
 
 
@@ -25,22 +25,37 @@ class UserAuth(ObjectType):
             raise Exception('Authentication Failure!')
         return user
 
+# Depricated use ProfileSearchQuery instead
+
 
 class UserSearchQuery(ObjectType):
     user_search = graphene.List(UserType, search=graphene.String(
     ), offset=Int(default_value=0), limit=Int(default_value=20))
 
-    def resolve_user_search(self, info, offset, limit, search=None, ** kwargs):
+    def resolve_user_search(self, info, offset, limit, search=None, **kwargs):
         if search:
             return get_user_model().objects.filter(
-                Q(username__icontains=search)
+                Q(username__icontains=search),
             ).exclude(Q(is_hidden=True)).distinct()[offset:offset+limit]
 
         return get_user_model().objects.all().exclude(Q(is_hidden=True)).distinct()[offset:offset+limit]
 
 
+class ProfileSearchQuery(ObjectType):
+    profile_search = graphene.List(ProfileType, search=graphene.String(
+    ), offset=Int(default_value=0), limit=Int(default_value=20))
+
+    def resolve_profile_search(self, info, offset, limit, search=None, **kwargs):
+        if search:
+            return Profile.objects.filter(
+                Q(username__icontains=search),
+            ).exclude(Q(user__is_hidden=True)).distinct()[offset:offset+limit]
+
+        return Profile.objects.all().exclude(Q(user__is_hidden=True)).distinct()[offset:offset+limit]
+
+
 class GetAuthUserQuery(ObjectType):
-    get_auth_user = Field(AuthUserType)
+    get_auth_user = Field(UserType)
 
     def resolve_get_auth_user(self, info):
         user = get_user_model().objects.get(id=info.context.user.id)
