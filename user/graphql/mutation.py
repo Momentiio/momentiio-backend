@@ -10,13 +10,13 @@ from interests.graphql.types import InterestType
 from social.graphql.types import FriendType, FriendshipRequestType
 from system.graphql.types import ImageType
 from system.graphql.mutation import create_system_image
-from .types import UserType, ProfileType, AuthUserType
+from .types import UserType, ProfileType
 from ..models import Profile
 
 
 class LoginUser(graphene.Mutation):
     success = graphene.NonNull(graphene.Boolean)
-    account = graphene.Field(AuthUserType)
+    account = graphene.Field(UserType)
     token = graphene.String()
     message = graphene.String()
 
@@ -70,7 +70,7 @@ class LookUpUsernameMutation(graphene.ObjectType):
 
 
 class CreateUser(graphene.Mutation):
-    user = graphene.Field(AuthUserType)
+    user = graphene.Field(UserType)
     token = graphene.String()
 
     class Arguments:
