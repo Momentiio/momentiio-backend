@@ -4,6 +4,7 @@ import PIL.Image as pil
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from social.models import Post
 from momentiio.storages import PrivateMediaStorage
 
 
@@ -27,6 +28,8 @@ def image_path_generator(instance, filename):
 
 class Image(models.Model):
     image = models.ImageField(upload_to=image_path_generator)
+    post = models.ForeignKey(
+        Post, related_name="post_images", null=True, on_delete=models.SET_NULL)
     user = models.ForeignKey(
         get_user_model(), related_name='images', on_delete=models.CASCADE)
     uploaded_at = models.DateTimeField(auto_now_add=True)

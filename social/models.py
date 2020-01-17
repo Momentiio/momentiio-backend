@@ -10,12 +10,6 @@ class Post(BaseModel):
         Profile, verbose_name="Created By", on_delete=models.CASCADE, related_name="user_photos"
     )
     caption = models.TextField(max_length=500, blank=True)
-    photo = ProcessedImageField(
-        upload_to="user_photos",
-        format="JPEG",
-        options={"quality": 90},
-        processors=[ResizeToFit(width=1200, height=1200)],
-    )
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
