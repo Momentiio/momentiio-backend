@@ -12,7 +12,8 @@ from ..models import Profile
 
 
 class UserType(DjangoObjectType):
-    profile_avatar = graphene.String()
+    profile_avatar = String()
+    location = String()
 
     class Meta:
         model = get_user_model()
@@ -27,8 +28,11 @@ class UserType(DjangoObjectType):
             "is_private",
         }
 
-        def resolve_profile_avatar(self, info):
-            return self.user.profile.profile_avatar
+    def resolve_profile_avatar(self, info):
+        return self.profile.profile_avatar
+
+    def resolve_location(self, info):
+        return self.profile.location
 
 
 class ProfileType(DjangoObjectType):
@@ -44,8 +48,8 @@ class ProfileType(DjangoObjectType):
         only_fields = {
             "id",
             "profile_avatar",
-            "bio",
             "location",
+            "bio",
             "birth_date",
             "interests",
         }
@@ -72,7 +76,7 @@ class ProfileType(DjangoObjectType):
 
 
 class AuthUserType(DjangoObjectType):
-    profileAvatar = graphene.String()
+    profileAvatar = String()
     address = Field(AddressType)
     friends = List(UserType)
     friend_requests = List(FriendshipRequestType)

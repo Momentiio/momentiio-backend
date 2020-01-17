@@ -243,6 +243,28 @@ class UpdateUserInterestsMutation(graphene.ObjectType):
     update_interests = UpdateUserInterests.Field()
 
 
+class UpdateLocation(graphene.Mutation):
+    location = graphene.String()
+
+    class Arguments:
+        location = graphene.String()
+
+    def mutate(self, info, location):
+        user = info.context.user
+        if user:
+            profile = user.profile
+            profile.location = location
+            profile.save()
+            return UpdateLocation(location=profile.location)
+        else:
+            raise graphene.GraphQlError(
+                'No User found please login to update your location')
+
+
+class UpdateLocationMutation(graphene.ObjectType):
+    update_location = UpdateLocation.Field()
+
+
 class UpdatePrivacyPermission(graphene.Mutation):
     is_private = graphene.Boolean()
     errors = graphene.String()
