@@ -343,7 +343,7 @@ class AddFriend(graphene.Mutation):
     def mutate(self, info, friend_id):
         user = info.context.user
         friend = get_user_model().objects.get(pk=friend_id)
-        is_private_or_hidden = friend.profile.is_private or friend.profile.is_hidden
+        is_private_or_hidden = friend.is_private or friend.is_hidden
 
         if not is_private_or_hidden:
             Friend.objects.get_or_create(
