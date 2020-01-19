@@ -310,23 +310,21 @@ class UpdateHiddenMutation(graphene.ObjectType):
 
 
 class RequestFriend(graphene.Mutation):
-    errors = graphene.String()
     friendship_request = graphene.Field(FriendshipRequestType)
 
     class Arguments:
         friend_id = graphene.ID()
 
     def mutate(self, info, friend_id):
-        _user = info.context.user
+        user = info.context.user
         friend = get_user_model().objects.get(pk=friend_id)
-
-        if _user and friend:
+        if user and friend:
             Friend.objects.add_friend(
-                _user,
+                user,
                 friend,
                 message=""
             )
-        return RequestFriend(friendship_request=FriendshipRequest.objects.get(to_user=friend), errors=None)
+        return RequestFriend(friendship_request=FriendshipRequest.objects.get(to_user=friend))
 
 
 class RequestFriendMutation(graphene.ObjectType):
@@ -350,11 +348,15 @@ class AddFriend(graphene.Mutation):
                 from_user=user,
                 to_user=friend,
             )
+            Follow.objects.add_follower(user, friend)
+            Follow.objects.add_follower(friend, user)
             new_friend = Friend.objects.get(
                 to_user=friend, from_user=user)
+
             return AddFriend(new_friend=new_friend, errors=None)
         else:
-            return AddFriend(errors="This user is private, You must send them a friend request to become friends.")
+            RequestFriend(friend_id=friend_id)
+            return AddFriend(errors="This user is private, We have created a friendship request for you")
 
 
 class AddFriendMutation(graphene.ObjectType):
@@ -362,8 +364,7 @@ class AddFriendMutation(graphene.ObjectType):
 
 
 class RemoveFriend(graphene.Mutation):
-    friend_list = graphene.List(UserType)
-    are_friends = graphene.Boolean()
+    success = graphene.Boolean()
     errors = graphene.String()
 
     class Arguments:
@@ -372,17 +373,11 @@ class RemoveFriend(graphene.Mutation):
     def mutate(self, info, friend_id):
         user = info.context.user
         friend = get_user_model().objects.get(pk=friend_id)
-        are_friends = Friend.objects.are_friends(
-            user, friend) == True
+        Follow.objects.remove_follower(user, friend)
+        Follow.objects.remove_follower(friend, user)
+        Friend.objects.remove_friend(user, friend)
 
-        if are_friends:
-            Friend.objects.remove_friend(user, friend)
-            friend_list = Friend.objects.friends(friend)
-            are_friends = Friend.objects.are_friends(
-                user, friend) == True
-            return RemoveFriend(friend_list=friend_list, are_friends=are_friends)
-        else:
-            return RemoveFriend(errors="Cannot remove a Friendship that does not exist")
+        return RemoveFriend(success=True)
 
 
 class RemoveFriendMutation(graphene.ObjectType):
@@ -398,15 +393,17 @@ class AcceptFriendRequest(graphene.Mutation):
         id = graphene.String()
 
     def mutate(self, info, id):
+        user = info.context.user
         friend_request = FriendshipRequest.objects.get(
             id=id)
         request_user = get_user_model().objects.get(id=friend_request.from_user.id)
         friend_request.accept()
         new_friend = Friend.objects.get(
-            to_user=info.context.user, from_user=request_user)
+            to_user=user, from_user=request_user)
         accepted = Friend.objects.are_friends(
-            request_user, info.context.user) == True
-
+            request_user, user) == True
+        Follow.objects.add_follower(user, friend)
+        Follow.objects.add_follower(friend, user)
         return AcceptFriendRequest(
             new_friend=new_friend, accepted=accepted, errors=None)
 
