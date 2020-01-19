@@ -15,7 +15,8 @@ class UserType(DjangoObjectType):
     profile_avatar = String()
     address = Field(AddressType)
     location = String()
-    friend_requests = List(FriendshipRequestType)
+    incoming_friend_requests = List(FriendshipRequestType)
+    outgoing_friend_requests = List(FriendshipRequestType)
     friend_request_count = String()
 
     class Meta:
@@ -42,8 +43,11 @@ class UserType(DjangoObjectType):
     def resolve_location(self, info):
         return self.profile.location
 
-    def resolve_friend_requests(self, info):
+    def resolve_incoming_friend_requests(self, info):
         return Friend.objects.unrejected_requests(user=self)
+
+    def resolve_outgoing_friend_requests(self, info):
+        return Friend.objects.sent_requests(user=self)
 
     def resolve_friend_request_count(self, info):
         return Friend.objects.unrejected_request_count(user=self)
@@ -73,9 +77,9 @@ class ProfileType(DjangoObjectType):
         return Post.objects.filter(user=self.id)
 
     def resolve_followers(self, info):
-        request_user = get_user_model().objects.get(pk=self.user.id)
-        return Follow.objects.followers(request_user)
+        user = info.context.user
+        return Follow.objects.followers(user)
 
     def resolve_following(self, info):
-        request_user = get_user_model().objects.get(pk=self.user.id)
-        return Follow.objects.following(request_user)
+        user = info.context.user
+        return Follow.objects.following(user)
