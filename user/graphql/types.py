@@ -77,9 +77,9 @@ class ProfileType(DjangoObjectType):
         return Post.objects.filter(user=self.id)
 
     def resolve_followers(self, info):
-        user = info.context.user
+        user = self.user
         return Follow.objects.followers(user)
 
     def resolve_following(self, info):
-        user = info.context.user
+        user = self.user
         return Follow.objects.following(user)
