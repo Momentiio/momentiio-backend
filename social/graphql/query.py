@@ -43,4 +43,5 @@ class PostsQuery(ObjectType):
 
     def resolve_posts(self, info):
         friend = Friend.objects.are_friends()
+
         return Post.objects.all()

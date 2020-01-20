@@ -309,7 +309,7 @@ class UpdateHiddenMutation(graphene.ObjectType):
 # Friendship Mutations
 
 
-class RequestFriend(graphene.Mutation):
+class CreateFriendRequest(graphene.Mutation):
     friendship_request = graphene.Field(FriendshipRequestType)
 
     class Arguments:
@@ -324,11 +324,11 @@ class RequestFriend(graphene.Mutation):
                 friend,
                 message=""
             )
-        return RequestFriend(friendship_request=FriendshipRequest.objects.get(to_user=friend))
+        return CreateFriendRequest(friendship_request=FriendshipRequest.objects.get(to_user=friend))
 
 
-class RequestFriendMutation(graphene.ObjectType):
-    request_friend = RequestFriend.Field()
+class CreateFriendRequestMutation(graphene.ObjectType):
+    create_friend_request = CreateFriendRequest.Field()
 
 
 class AddFriend(graphene.Mutation):
@@ -355,7 +355,7 @@ class AddFriend(graphene.Mutation):
 
             return AddFriend(new_friend=new_friend, errors=None)
         else:
-            RequestFriend(friend_id=friend_id)
+            CreateFriendRequest(friend_id=friend_id)
             return AddFriend(errors="This user is private, We have created a friendship request for you")
 
 
@@ -385,7 +385,7 @@ class RemoveFriendMutation(graphene.ObjectType):
 
 
 class AcceptFriendRequest(graphene.Mutation):
-    new_friend = graphene.Field(FriendType)
+    new_friend = graphene.Field(UserType)
     accepted = graphene.Boolean()
     errors = graphene.String()
 
@@ -396,16 +396,14 @@ class AcceptFriendRequest(graphene.Mutation):
         user = info.context.user
         friend_request = FriendshipRequest.objects.get(
             id=id)
-        request_user = get_user_model().objects.get(id=friend_request.from_user.id)
+        friend = get_user_model().objects.get(
+            id=friend_request.from_user.id)
         friend_request.accept()
-        new_friend = Friend.objects.get(
-            to_user=user, from_user=request_user)
-        accepted = Friend.objects.are_friends(
-            request_user, user) == True
         Follow.objects.add_follower(user, friend)
         Follow.objects.add_follower(friend, user)
         return AcceptFriendRequest(
-            new_friend=new_friend, accepted=accepted, errors=None)
+            new_friend=friend, accepted=Friend.objects.are_friends(
+                friend, user) == True, errors=None)
 
 
 class AcceptFriendRequestMutation(graphene.ObjectType):

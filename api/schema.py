@@ -9,7 +9,7 @@ from social.graphql.query import PostsQuery, GetPostQuery, GetPostCommentsQuery,
 from social.graphql.mutation import AddPostMutation, UpdatePostMutation, DeletePostMutation, LikePostMutation, RemoveLikePostMutation, AddPostCommentMutation, UpdatePostCommentMutation, DeletePostCommentMutation
 from system.graphql.mutation import ImageMutation
 from user.graphql.query import GetAuthUserQuery, GetUserProfileQuery, ProfileSearchQuery, UserSearchQuery, GetAuthUserProfileQuery
-from user.graphql.mutation import LoginUserMutation, LogoutUserMutation, UpdateLocationMutation, AddFriendMutation, RemoveFriendMutation, CreateUserMutation, PauseAccountMutation, DeleteUserMutation, CancelFriendRequestMutation, RequestFriendMutation, AcceptFriendRequestMutation, DeclineFriendRequestMutation, UpdateUserMutation, UpdateUserProfileMutation, UploadProfileImageMutation, UpdatePrivacyMutation, UpdateHiddenMutation, UpdateUserInterestsMutation, LookUpUsernameMutation
+from user.graphql.mutation import LoginUserMutation, LogoutUserMutation, UpdateLocationMutation, AddFriendMutation, RemoveFriendMutation, CreateUserMutation, PauseAccountMutation, DeleteUserMutation, CancelFriendRequestMutation, CreateFriendRequestMutation, AcceptFriendRequestMutation, DeclineFriendRequestMutation, UpdateUserMutation, UpdateUserProfileMutation, UploadProfileImageMutation, UpdatePrivacyMutation, UpdateHiddenMutation, UpdateUserInterestsMutation, LookUpUsernameMutation
 
 
 class Query(
@@ -57,7 +57,7 @@ class Mutation(
     UpdateHiddenMutation,
     AddFriendMutation,
     RemoveFriendMutation,
-    RequestFriendMutation,
+    CreateFriendRequestMutation,
     AcceptFriendRequestMutation,
     CancelFriendRequestMutation,
     DeclineFriendRequestMutation,
