@@ -5,7 +5,7 @@ from graphene_django import DjangoObjectType
 from address.graphql.mutation import UpdateAddressMutation
 from interests.graphql.query import InterestListQuery, GetInterests
 from invites.graphql.mutation import CreateInviteMutation, UpdateInviteMutation, DeleteInviteMutation, ClaimInviteMutation, CreateUserFromInviteMutation
-from social.graphql.query import PostsQuery, GetPostQuery, GetPostCommentsQuery, GetPostLikesQuery
+from social.graphql.query import PostsQuery, FeedQuery, GetPostQuery, GetPostCommentsQuery, GetPostLikesQuery
 from social.graphql.mutation import AddPostMutation, UpdatePostMutation, DeletePostMutation, LikePostMutation, RemoveLikePostMutation, AddPostCommentMutation, UpdatePostCommentMutation, DeletePostCommentMutation
 from system.graphql.mutation import ImageMutation
 from user.graphql.query import GetAuthUserQuery, GetUserProfileQuery, ProfileSearchQuery, UserSearchQuery, GetAuthUserProfileQuery
@@ -19,6 +19,7 @@ class Query(
     GetPostQuery,
     GetPostLikesQuery,
     PostsQuery,
+    FeedQuery,
     GetPostCommentsQuery,
     GetAuthUserProfileQuery,
     GetUserProfileQuery,

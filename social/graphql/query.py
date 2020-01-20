@@ -1,9 +1,11 @@
-from ..models import Post, Comment, Like
-from .types import PostType, CommentType, LikeType
-from graphene_django import DjangoObjectType
 import graphene
 from django.db import models
 from graphene import Field, List, Int, ID, NonNull, ObjectType
+from graphene_django import DjangoObjectType
+from user.graphql.types import ProfileType
+from ..models import Post, Comment, Like
+from .types import PostType, CommentType, LikeType
+from friendship.models import Friend
 
 
 class GetPostQuery(ObjectType):
@@ -44,3 +46,11 @@ class PostsQuery(ObjectType):
     def resolve_posts(self, info):
 
         return Post.objects.all()
+
+
+class FeedQuery(ObjectType):
+    feed = List(PostType)
+
+    def resolve_feed(self, info):
+        friends = Friend.objects.friends(info.context.user)
+        return Post.objects.filter(user__user__in=friends)
