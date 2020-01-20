@@ -332,7 +332,7 @@ class CreateFriendRequestMutation(graphene.ObjectType):
 
 
 class AddFriend(graphene.Mutation):
-    new_friend = graphene.Field(FriendType)
+    new_friend = graphene.Field(UserType)
     errors = graphene.String()
 
     class Arguments:
@@ -350,10 +350,8 @@ class AddFriend(graphene.Mutation):
             )
             Follow.objects.add_follower(user, friend)
             Follow.objects.add_follower(friend, user)
-            new_friend = Friend.objects.get(
-                to_user=friend, from_user=user)
 
-            return AddFriend(new_friend=new_friend, errors=None)
+            return AddFriend(new_friend=friend, errors=None)
         else:
             CreateFriendRequest(friend_id=friend_id)
             return AddFriend(errors="This user is private, We have created a friendship request for you")
