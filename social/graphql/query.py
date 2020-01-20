@@ -42,6 +42,5 @@ class PostsQuery(ObjectType):
     # Depricated: Replace with auth_user Friend list posts
 
     def resolve_posts(self, info):
-        friend = Friend.objects.are_friends()
 
         return Post.objects.all()
