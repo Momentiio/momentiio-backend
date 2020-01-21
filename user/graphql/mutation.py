@@ -143,8 +143,9 @@ class UpdateUser(graphene.Mutation):
         email = graphene.String(required=False)
         first_name = graphene.String(required=False)
         last_name = graphene.String(required=False)
+        phone_number = graphene.String(required=False)
 
-    def mutate(self, info, username, email, first_name, last_name):
+    def mutate(self, info, username, email, first_name, last_name, phone_number):
         try:
             user = info.context.user
         except user.DoesNotExist:
@@ -157,6 +158,8 @@ class UpdateUser(graphene.Mutation):
             user.first_name = first_name
         if last_name:
             user.last_name = last_name
+        if phone_number:
+            user.phone_number = phone_number
         user.save()
         return UpdateUser(user=user, errors=None)
 
