@@ -5,6 +5,7 @@ from graphene_django import DjangoObjectType
 from friendship.models import Follow, Friend
 
 from address.graphql.types import AddressType
+from address.models import Address
 from invites.graphql.types import InviteType
 from social.graphql.types import PostType, FriendshipRequestType
 from social.models import Post
@@ -38,7 +39,7 @@ class UserType(DjangoObjectType):
         }
 
     def resolve_address(self, info):
-        return self.user.address
+        return Address.objects.get(user=self)
 
     def resolve_profile_avatar(self, info):
         return self.profile.profile_avatar

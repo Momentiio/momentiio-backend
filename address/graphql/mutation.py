@@ -30,6 +30,7 @@ class UpdateAddress(graphene.Mutation):
                 'country': country
             }
         )
+        address.save()
         return UpdateAddress(address=address, errors=None)
 
 
