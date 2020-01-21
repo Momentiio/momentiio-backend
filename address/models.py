@@ -1,34 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-
-
-class Country(models.Model):
-    """Model for countries"""
-    iso_code = models.CharField(max_length=2, primary_key=True)
-    name = models.CharField(max_length=45, blank=False)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural = "Countries"
-        ordering = ["name", "iso_code"]
-
-
-class StateProvince(models.Model):
-    """Model for states and provinces"""
-    iso_code = models.CharField(max_length=3, primary_key=True)
-    name = models.CharField(max_length=55, blank=False)
-    country = models.ForeignKey(
-        Country, to_field="iso_code", on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = "State or province"
-        ordering = ["-country", "name"]
+from django_countries.fields import CountryField
 
 
 class Address(models.Model):
@@ -40,9 +13,9 @@ class Address(models.Model):
     city = models.CharField(max_length=50, blank=False)
     state_province = models.CharField("State/Province", max_length=40,
                                       blank=True)
-    country = models.ForeignKey(Country, blank=False, on_delete=models.CASCADE)
-    user = models.OneToOneField(
-        get_user_model(), blank=False, on_delete=models.PROTECT)
+    country = CountryField(default='US')
+    user = models.ForeignKey(
+        get_user_model(), blank=False, on_delete=models.PROTECT, related_name="user_address")
 
     def __str__(self):
         return "%s, %s %s" % (self.city, self.state_province,

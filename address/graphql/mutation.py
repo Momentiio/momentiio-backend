@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 import graphene
 from graphene_django import DjangoObjectType
-from ..models import Address, Country
+from django_countries.fields import CountryField
+from ..models import Address
 from .types import CountryType, AddressType
 
 
@@ -15,9 +16,9 @@ class UpdateAddress(graphene.Mutation):
         postal_code = graphene.String()
         city = graphene.String()
         state_province = graphene.String()
-        country_code = graphene.String()
+        country = graphene.String()
 
-    def mutate(self, info, address_line1, address_line2, city, state_province, postal_code, country_code):
+    def mutate(self, info, address_line1, address_line2, city, state_province, postal_code, country):
         address, _ = Address.objects.update_or_create(
             user=info.context.user,
             defaults={
@@ -26,7 +27,7 @@ class UpdateAddress(graphene.Mutation):
                 'postal_code': postal_code,
                 'city': city,
                 'state_province': state_province,
-                'country': Country.objects.get(iso_code=country_code)
+                'country': country
             }
         )
         return UpdateAddress(address=address, errors=None)

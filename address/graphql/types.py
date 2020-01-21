@@ -1,15 +1,17 @@
 import graphene
 from graphene_django import DjangoObjectType
-from address.models import Address, Country
+from address.models import Address
 
 
-class CountryType(DjangoObjectType):
-    class Meta:
-        model = Country
-        only_fields = {
-            "iso_code",
-            "name"
-        }
+class CountryType(graphene.ObjectType):
+    code = graphene.NonNull(graphene.String)
+    name = graphene.NonNull(graphene.String)
+
+    def resolve_code(dict, info):
+        return dict["code"]
+
+    def resolve_name(dict, info):
+        return dict["name"]
 
 
 class AddressType(DjangoObjectType):
