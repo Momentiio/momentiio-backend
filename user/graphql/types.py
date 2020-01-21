@@ -37,6 +37,9 @@ class UserType(DjangoObjectType):
             "invites"
         }
 
+    def resolve_address(self, info):
+        return self.user.address
+
     def resolve_profile_avatar(self, info):
         return self.profile.profile_avatar
 
@@ -56,7 +59,6 @@ class UserType(DjangoObjectType):
 class ProfileType(DjangoObjectType):
     username = String()
     full_name = String()
-    address = Field(AddressType)
     posts = List(PostType)
     followers = List(UserType)
     following = List(UserType)
@@ -69,9 +71,6 @@ class ProfileType(DjangoObjectType):
 
     def resolve_full_name(self, info):
         return self.user.full_name
-
-    def resolve_address(self, info):
-        return self.user.address
 
     def resolve_posts(self, info):
         return Post.objects.filter(user=self.id)
