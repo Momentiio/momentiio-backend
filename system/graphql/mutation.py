@@ -13,10 +13,10 @@ from ..models import Image
 def create_system_image(info, url=None, file=None, post_id=None):
     user = info.context.user
 
-    if post_id is not None:
+    if post_id:
         post = Post.objects.get(id=post_id)
     else:
-        post = ""
+        post = None
 
     if file:
         image_file = SimpleUploadedFile(
@@ -55,7 +55,7 @@ class UploadMutation(graphene.Mutation):
         return UploadMutation(success=True)
 
 
-class UploadImage(Mutation):
+class UploadImageFromUrl(Mutation):
     image = NonNull(ImageType)
 
     class Arguments:

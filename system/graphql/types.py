@@ -10,9 +10,9 @@ class ImageType(DjangoObjectType):
     class Meta:
         model = Image
         only_fields = {
-            'id'
-            'image_width',
+            'id',
             'image_height',
+            'image_width',
         }
 
     def resolve_url(self, info):
