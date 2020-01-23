@@ -41,7 +41,7 @@ class Image(models.Model):
         return f"{self.image}"
 
     def get_absolute_url(self):
-        return self.image.image
+        return self.image.image.url
 
     @classmethod
     def create_new(cls, user=None, post=None, post_file=None, localfilename=None,

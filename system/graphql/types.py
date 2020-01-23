@@ -5,5 +5,15 @@ from ..models import Image
 
 
 class ImageType(DjangoObjectType):
+    url = String()
+
     class Meta:
         model = Image
+        only_fields = {
+            'id'
+            'image_width',
+            'image_height',
+        }
+
+    def resolve_url(self, info):
+        return self.image.url

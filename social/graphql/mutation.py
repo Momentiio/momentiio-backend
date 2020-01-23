@@ -2,6 +2,7 @@ from django.db import models
 import datetime
 import graphene
 from graphene_django import DjangoObjectType
+from graphene_file_upload.scalars import Upload
 from system.graphql.mutation import create_system_image
 from .types import PostType, LikeType, CommentType
 from ..models import Post, Comment, Like
@@ -12,7 +13,7 @@ class AddPost(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        photo = graphene.String()
+        media_files = Upload(required=True)
         caption = graphene.String()
 
     def mutate(self, info, photo, caption):
