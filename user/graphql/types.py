@@ -42,7 +42,10 @@ class UserType(DjangoObjectType):
         return Address.objects.get(user=self)
 
     def resolve_profile_avatar(self, info):
-        return self.profile.profile_avatar.url
+        if self.profile.profile_avatar:
+            return self.profile.profile_avatar.url
+        else:
+            return self.profile.profile_avatar
 
     def resolve_location(self, info):
         return self.profile.location
