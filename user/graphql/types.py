@@ -71,8 +71,11 @@ class ProfileType(DjangoObjectType):
     class Meta:
         model = Profile
 
-    def resolve_profileAvatar(self, info):
-        return self.profileAvatar.url
+    def resolve_profile_avatar(self, info):
+        if self.profile.profile_avatar:
+            return self.profile.profile_avatar.url
+        else:
+            return self.profile.profile_avatar
 
     def resolve_username(self, info):
         return self.user.username
