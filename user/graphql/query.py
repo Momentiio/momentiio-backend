@@ -28,19 +28,6 @@ class UserAuth(ObjectType):
 # Depricated use ProfileSearchQuery instead
 
 
-class UserSearchQuery(ObjectType):
-    user_search = graphene.List(UserType, search=graphene.String(
-    ), offset=Int(default_value=0), limit=Int(default_value=20))
-
-    def resolve_user_search(self, info, offset, limit, search=None, **kwargs):
-        if search:
-            return get_user_model().objects.filter(
-                Q(username__icontains=search),
-            ).exclude(Q(is_hidden=True)).distinct()[offset:offset+limit]
-
-        return get_user_model().objects.all().exclude(Q(is_hidden=True)).distinct()[offset:offset+limit]
-
-
 class ProfileSearchQuery(ObjectType):
     profile_search = graphene.List(ProfileType, search=graphene.String(
     ), offset=Int(default_value=0), limit=Int(default_value=20))

@@ -42,7 +42,7 @@ class UserType(DjangoObjectType):
         return Address.objects.get(user=self)
 
     def resolve_profile_avatar(self, info):
-        return self.profile.profile_avatar
+        return self.profile.profile_avatar.url
 
     def resolve_location(self, info):
         return self.profile.location
@@ -63,9 +63,13 @@ class ProfileType(DjangoObjectType):
     posts = List(PostType)
     followers = List(UserType)
     following = List(UserType)
+    profileAvatar = String()
 
     class Meta:
         model = Profile
+
+    def resolve_profileAvatar(self, info):
+        return self.profileAvatar.url
 
     def resolve_username(self, info):
         return self.user.username

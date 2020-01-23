@@ -1,34 +1,61 @@
 import os
 import requests
 import graphene
-
-
 from graphene import Boolean, ID, List, Mutation, NonNull, String
+from graphene_file_upload.scalars import Upload
+from social.models import Post
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from .types import ImageType
 from ..models import Image
 
 
-def create_system_image(info, url=None):
+def create_system_image(info, url=None, file=None, post_id=None):
     user = info.context.user
-    if url:
+
+    if post_id:
+        post = Post.objects.get(id=post_id)
+    else:
+        post = None
+
+    if file:
+        image_file = SimpleUploadedFile(
+            name=os.path.basename(file.name)[0],
+            content=file.content
+        )
+
+    elif url:
         image_file = SimpleUploadedFile(
             name=os.path.basename(url).split('?')[0],
             content=requests.get(url).content
         )
+
     else:
         image_file = info.context.FILES['image_file']
+
     image = Image.create_new(
         user=user if not user.is_anonymous else None,
         post_file=image_file,
-        process_jpeg=True
-    )
+        process_jpeg=True,
+        post=post)
 
     return image
 
 
-class UploadImage(Mutation):
+class UploadMutation(graphene.Mutation):
+    success = graphene.Boolean()
+
+    class Arguments:
+        file_in = Upload(required=True)
+        post_id = String()
+
+    def mutate(self, info, file_in, post_id):
+        for file in file_in:
+            file = create_system_image(info, file, post_id)
+        return UploadMutation(success=True)
+
+
+class UploadImageFromUrl(Mutation):
     image = NonNull(ImageType)
 
     class Arguments:
@@ -58,5 +85,5 @@ class DeleteImage(Mutation):
 
 
 class ImageMutation(object):
-    upload_image = UploadImage.Field()
+    upload_image = UploadMutation.Field()
     delete_image = DeleteImage.Field()

@@ -169,7 +169,7 @@ class UpdateUserMutation(graphene.ObjectType):
 
 
 class UploadProfileImage(graphene.Mutation):
-    profile = graphene.NonNull(ProfileType)
+    profile_image = graphene.String()
 
     class Arguments:
         url = graphene.String()
@@ -185,7 +185,7 @@ class UploadProfileImage(graphene.Mutation):
             image = create_system_image(info, url)
             user_profile.profile_avatar = image.image
             user_profile.save()
-            return UploadProfileImage(profile=user_profile)
+            return UploadProfileImage(profile_image=image.image.url)
 
 
 class UploadProfileImageMutation(graphene.ObjectType):

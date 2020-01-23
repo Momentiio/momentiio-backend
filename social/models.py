@@ -7,20 +7,14 @@ from user.models import Profile
 
 class Post(BaseModel):
     user = models.ForeignKey(
-        Profile, verbose_name="Created By", on_delete=models.CASCADE, related_name="user_photos"
+        Profile, verbose_name="Created By", on_delete=models.CASCADE, related_name="post_creator"
     )
     caption = models.TextField(max_length=500, blank=True)
-    photo = ProcessedImageField(
-        upload_to="user_photos",
-        format="JPEG",
-        options={"quality": 90},
-        processors=[ResizeToFit(width=1200, height=1200)],
-    )
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user}'s Photo on {self.date_created}"
+        return f"{self.user}'s Post on {self.date_created}"
 
     class Meta:
         """Metadata."""

@@ -3,7 +3,8 @@ import graphene
 from graphene import Field, Int, List, String
 from graphene_django import DjangoObjectType
 from friendship.models import Friend, FriendshipRequest, Follow, Block
-
+from system.models import Image
+from system.graphql.types import ImageType
 from ..models import Post, Comment, Like
 
 
@@ -28,6 +29,7 @@ class PostType(DjangoObjectType):
     comment_count = Int()
     like_count = Int()
     recent_comments = List(CommentType)
+    post_media = List(ImageType)
 
     class Meta:
         model = Post
@@ -35,7 +37,6 @@ class PostType(DjangoObjectType):
             "id",
             "user",
             "caption",
-            "photo",
             "date_created",
             "date_updated"
         ]
@@ -48,6 +49,9 @@ class PostType(DjangoObjectType):
 
     def resolve_recent_comments(self, info):
         return self.comments.all().order_by('-date_created')[:3]
+
+    def resolve_post_media(self, info):
+        return Image.objects.filter(post=self)
 
 
 class FriendType(DjangoObjectType):

@@ -2,6 +2,7 @@ from django.db import models
 import datetime
 import graphene
 from graphene_django import DjangoObjectType
+from graphene_file_upload.scalars import Upload
 from system.graphql.mutation import create_system_image
 from .types import PostType, LikeType, CommentType
 from ..models import Post, Comment, Like
@@ -12,20 +13,21 @@ class AddPost(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        photo = graphene.String()
+        media_files = Upload(required=True)
         caption = graphene.String()
 
     def mutate(self, info, photo, caption):
         user = info.context.user.profile
         if not user:
             return AddPost(errors="You must be logged in to create a post")
-        post_image = create_system_image(info, photo)
+
         post = Post.objects.create(
             user=user,
-            photo=post_image.image,
             caption=caption,
             date_created=datetime.datetime.now()
         )
+        post_image = create_system_image(info, photo, post.id)
+
         return AddPost(post=post, errors=None)
 
 
@@ -46,8 +48,7 @@ class UpdatePost(graphene.Mutation):
     def mutate(self, info, post_id, photo, caption):
         post = Post.objects.get(id=post_id)
         if photo:
-            post_image = create_system_image(info, photo)
-            post.photo = post_image
+            post_image = create_system_image(info, photo, post_id)
         else:
             post.photo = post.photo
         if caption:
