@@ -46,11 +46,11 @@ class UploadMutation(graphene.Mutation):
     success = graphene.Boolean()
 
     class Arguments:
-        file_in = Upload(required=True)
+        files = Upload(required=True)
         post_id = String()
 
-    def mutate(self, info, file_in, post_id):
-        for file in file_in:
+    def mutate(self, info, files, post_id):
+        for file in files:
             file = create_system_image(info, file, post_id)
         return UploadMutation(success=True)
 
