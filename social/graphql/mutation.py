@@ -13,10 +13,10 @@ class AddPost(graphene.Mutation):
     errors = graphene.String()
 
     class Arguments:
-        media_files = Upload(required=True)
+        # media_files = Upload(required=True)
         caption = graphene.String()
 
-    def mutate(self, info, photo, caption):
+    def mutate(self, info, caption):
         user = info.context.user.profile
         if not user:
             return AddPost(errors="You must be logged in to create a post")
@@ -26,7 +26,7 @@ class AddPost(graphene.Mutation):
             caption=caption,
             date_created=datetime.datetime.now()
         )
-        post_image = create_system_image(info, photo, post.id)
+        # post_image = create_system_image(info, photo, post.id)
 
         return AddPost(post=post, errors=None)
 
