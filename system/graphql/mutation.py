@@ -16,7 +16,7 @@ def create_system_image(info, url=None, file=None, post_id=None):
     if post_id is not None:
         post = Post.objects.get(id=post_id)
     else:
-        post = null
+        post = ""
 
     if file:
         image_file = SimpleUploadedFile(

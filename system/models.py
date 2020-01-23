@@ -27,11 +27,14 @@ def image_path_generator(instance, filename):
 
 
 class Image(models.Model):
-    image = models.ImageField(upload_to=image_path_generator)
+    image_height = models.IntegerField(default=0)
+    image_width = models.IntegerField(default=0)
+    image = models.ImageField(upload_to=image_path_generator,
+                              height_field="image_height", width_field="image_width")
     post = models.ForeignKey(
         Post, related_name="post_images", null=True, on_delete=models.SET_NULL)
     user = models.ForeignKey(
-        get_user_model(), related_name='images', on_delete=models.CASCADE)
+        get_user_model(), related_name='user_images', on_delete=models.CASCADE)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -41,13 +44,13 @@ class Image(models.Model):
         return self.image.image
 
     @classmethod
-    def create_new(cls, user=None, post_file=None, localfilename=None,
+    def create_new(cls, user=None, post=None, post_file=None, localfilename=None,
                    update_existing=False, process_jpeg=True):
 
         if update_existing:
             image = update_existing
         else:
-            image = Image(user=user)
+            image = Image(user=user, post=post)
 
         if localfilename:
             pil.open(localfilename).verify()
