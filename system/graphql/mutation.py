@@ -19,10 +19,7 @@ def create_system_image(info, url=None, file=None, post_id=None):
         post = None
 
     if file:
-        image_file = SimpleUploadedFile(
-            name=os.path.basename(file.name)[0],
-            content=file.content
-        )
+        info.context.FILES['image_file']
 
     elif url:
         image_file = SimpleUploadedFile(
@@ -42,7 +39,7 @@ def create_system_image(info, url=None, file=None, post_id=None):
     return image
 
 
-class UploadMutation(graphene.Mutation):
+class UploadFiles(graphene.Mutation):
     success = graphene.Boolean()
 
     class Arguments:
@@ -52,7 +49,11 @@ class UploadMutation(graphene.Mutation):
     def mutate(self, info, files, post_id):
         for file in files:
             file = create_system_image(info, file, post_id)
-        return UploadMutation(success=True)
+        return UploadFiles(success=True)
+
+
+class UploadMutation(graphene.ObjectType):
+    uploadMutation = UploadFiles.Field()
 
 
 class UploadImageFromUrl(Mutation):
@@ -85,5 +86,5 @@ class DeleteImage(Mutation):
 
 
 class ImageMutation(object):
-    upload_image = UploadMutation.Field()
+    # upload_image = UploadMutation.Field()
     delete_image = DeleteImage.Field()
