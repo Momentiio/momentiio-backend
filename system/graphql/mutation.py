@@ -12,14 +12,17 @@ from ..models import Image
 
 def create_system_image(info, url=None, file=None, post_id=None):
     user = info.context.user
-
     if post_id:
         post = Post.objects.get(id=post_id)
     else:
         post = None
 
     if file:
-        info.context.FILES['image_file']
+        open_file = file.open(0)
+        image_file = SimpleUploadedFile(
+            name=os.path.basename(open_file).split('?')[0],
+            content=requests.get(open_file).content
+        )
 
     elif url:
         image_file = SimpleUploadedFile(
@@ -47,6 +50,7 @@ class UploadFiles(graphene.Mutation):
         post_id = String()
 
     def mutate(self, info, files, post_id):
+        print(files)
         for file in files:
             file = create_system_image(info, file, post_id)
         return UploadFiles(success=True)
