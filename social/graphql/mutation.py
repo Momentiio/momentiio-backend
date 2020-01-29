@@ -1,52 +1,54 @@
 from django.db import models
 import datetime
 import graphene
+from graphene import Field, List, String, ID, Boolean, ObjectType, Mutation
 from graphene_django import DjangoObjectType
 from graphene_file_upload.scalars import Upload
 from system.graphql.mutation import create_system_image
+from system.graphql.types import ImageType
 from .types import PostType, LikeType, CommentType
 from ..models import Post, Comment, Like
 
 
-class AddPost(graphene.Mutation):
-    post = graphene.Field(PostType)
-    #files = graphene.Upload()
-    errors = graphene.String()
+class CreatePost(Mutation):
+    post = Field(PostType)
+    errors = String()
 
     class Arguments:
-        # media_files = Upload(required=True)
-        caption = graphene.String()
+        post_media = Upload(required=True)
+        caption = String()
 
-    def mutate(self, info, caption):
+    def mutate(self, info, caption, post_media):
         user = info.context.user.profile
         if not user:
-            return AddPost(errors="You must be logged in to create a post")
+            return CreatePost(errors="You must be logged in to create a post")
 
         post = Post.objects.create(
             user=user,
             caption=caption,
             date_created=datetime.datetime.now()
         )
+
+        for file in media_files:
+            image = create_system_image(info, file, post.id)
+
         post.save()
-
-        # post_image = create_system_image(info, photo, post.id)
-
-        return AddPost(post=post, errors=None)
+        return CreatePost(post=post, errors=None)
 
 
-class AddPostMutation(graphene.ObjectType):
-    add_post = AddPost.Field()
+class CreatePostMutation(ObjectType):
+    create_post = CreatePost.Field()
 
 
-class UpdatePost(graphene.Mutation):
-    post = graphene.Field(PostType)
-    updated_on = graphene.String()
-    errors = graphene.String()
+class UpdatePost(Mutation):
+    post = Field(PostType)
+    updated_on = String()
+    errors = String()
 
     class Arguments:
-        post_id = graphene.ID()
-        photo = graphene.String(required=False)
-        caption = graphene.String(required=False)
+        post_id = ID()
+        photo = String(required=False)
+        caption = String(required=False)
 
     def mutate(self, info, post_id, photo, caption):
         post = Post.objects.get(id=post_id)
@@ -63,15 +65,15 @@ class UpdatePost(graphene.Mutation):
         return UpdatePost(post=post, updated_on=_updated)
 
 
-class UpdatePostMutation(graphene.ObjectType):
+class UpdatePostMutation(ObjectType):
     update_post = UpdatePost.Field()
 
 
-class DeletePost(graphene.Mutation):
-    deleted = graphene.Boolean()
+class DeletePost(Mutation):
+    deleted = Boolean()
 
     class Arguments:
-        post_id = graphene.ID()
+        post_id = ID()
 
     def mutate(self, info, post_id):
         post = Post.objects.get(id=post_id)
@@ -79,16 +81,16 @@ class DeletePost(graphene.Mutation):
         return DeletePost(deleted=True)
 
 
-class DeletePostMutation(graphene.ObjectType):
+class DeletePostMutation(ObjectType):
     delete_post = DeletePost.Field()
 
 
-class LikePost(graphene.Mutation):
-    like = graphene.Field(LikeType)
-    errors = graphene.String()
+class LikePost(Mutation):
+    like = Field(LikeType)
+    errors = String()
 
     class Arguments:
-        post_id = graphene.ID()
+        post_id = ID()
 
     def mutate(self, info, post_id):
         like = Like.objects.create(
@@ -99,16 +101,16 @@ class LikePost(graphene.Mutation):
         return LikePost(like=like, errors=None)
 
 
-class LikePostMutation(graphene.ObjectType):
+class LikePostMutation(ObjectType):
     like_post = LikePost.Field()
 
 
-class RemoveLikePost(graphene.Mutation):
-    removed = graphene.Boolean()
-    errors = graphene.String()
+class RemoveLikePost(Mutation):
+    removed = Boolean()
+    errors = String()
 
     class Arguments:
-        like_id = graphene.ID()
+        like_id = ID()
 
     def mutate(self, info, like_id):
         like = Like.objects.get(id=like_id)
@@ -116,17 +118,17 @@ class RemoveLikePost(graphene.Mutation):
         return RemoveLikePost(removed=True, errors=None)
 
 
-class RemoveLikePostMutation(graphene.ObjectType):
+class RemoveLikePostMutation(ObjectType):
     remove_like = RemoveLikePost.Field()
 
 
-class AddPostComment(graphene.Mutation):
-    comment = graphene.Field(CommentType)
-    errors = graphene.String()
+class AddPostComment(Mutation):
+    comment = Field(CommentType)
+    errors = String()
 
     class Arguments:
-        post_id = graphene.ID()
-        comment = graphene.String()
+        post_id = ID()
+        comment = String()
 
     def mutate(self, info, post_id, comment):
         comment = Comment.objects.create(
@@ -138,17 +140,17 @@ class AddPostComment(graphene.Mutation):
         return AddPostComment(comment=comment, errors=None)
 
 
-class AddPostCommentMutation(graphene.ObjectType):
+class AddPostCommentMutation(ObjectType):
     add_comment = AddPostComment.Field()
 
 
-class UpdatePostComment(graphene.Mutation):
-    comment = graphene.Field(CommentType)
-    errors = graphene.String()
+class UpdatePostComment(Mutation):
+    comment = Field(CommentType)
+    errors = String()
 
     class Arguments:
-        comment_id = graphene.ID()
-        comment = graphene.String()
+        comment_id = ID()
+        comment = String()
 
     def mutate(self, info, comment_id, comment):
         comment = Comment.objects.get(id=comment_id)
@@ -160,16 +162,16 @@ class UpdatePostComment(graphene.Mutation):
             return UpdatePostComment(comment=comment, errors=None)
 
 
-class UpdatePostCommentMutation(graphene.ObjectType):
+class UpdatePostCommentMutation(ObjectType):
     update_comment = UpdatePostComment.Field()
 
 
-class DeletePostComment(graphene.Mutation):
-    deleted = graphene.Boolean()
-    errors = graphene.String()
+class DeletePostComment(Mutation):
+    deleted = Boolean()
+    errors = String()
 
     class Arguments:
-        comment_id = graphene.ID()
+        comment_id = ID()
 
     def mutate(self, info, comment_id):
         user = info.context.user
@@ -178,5 +180,5 @@ class DeletePostComment(graphene.Mutation):
         return DeletePostComment(deleted=True, errors=None)
 
 
-class DeletePostCommentMutation(graphene.ObjectType):
+class DeletePostCommentMutation(ObjectType):
     delete_comment = DeletePostComment.Field()

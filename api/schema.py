@@ -7,7 +7,7 @@ from address.graphql.query import CountryQuery
 from interests.graphql.query import InterestListQuery, GetInterests
 from invites.graphql.mutation import CreateInviteMutation, UpdateInviteMutation, DeleteInviteMutation, ClaimInviteMutation, CreateUserFromInviteMutation
 from social.graphql.query import PostsQuery, FeedQuery, GetPostQuery, GetPostCommentsQuery, GetPostLikesQuery
-from social.graphql.mutation import AddPostMutation, UpdatePostMutation, DeletePostMutation, LikePostMutation, RemoveLikePostMutation, AddPostCommentMutation, UpdatePostCommentMutation, DeletePostCommentMutation
+from social.graphql.mutation import CreatePostMutation, UpdatePostMutation, DeletePostMutation, LikePostMutation, RemoveLikePostMutation, AddPostCommentMutation, UpdatePostCommentMutation, DeletePostCommentMutation
 from system.graphql.mutation import UploadFilesMutation, ImageMutation
 from user.graphql.query import GetAuthUserQuery, GetUserProfileQuery, ProfileSearchQuery, GetAuthUserProfileQuery, GetAuthUserImages
 from user.graphql.mutation import LoginUserMutation, LogoutUserMutation, UpdateLocationMutation, AddFriendMutation, RemoveFriendMutation, CreateUserMutation, PauseAccountMutation, DeleteUserMutation, CancelFriendRequestMutation, CreateFriendRequestMutation, AcceptFriendRequestMutation, DeclineFriendRequestMutation, UpdateUserMutation, UpdateUserProfileMutation, UploadProfileImageMutation, UpdatePrivacyMutation, UpdateHiddenMutation, UpdateUserInterestsMutation, LookUpUsernameMutation
@@ -38,7 +38,7 @@ class Mutation(
     DeleteInviteMutation,
     ClaimInviteMutation,
     CreateUserFromInviteMutation,
-    AddPostMutation,
+    CreatePostMutation,
     UpdatePostMutation,
     DeletePostMutation,
     LikePostMutation,
