@@ -58,8 +58,10 @@ class Image(models.Model):
                 image.image = SimpleUploadedFile(
                     name=os.path.basename(localfilename),
                     content=fh.read())
+                image.post = post
 
         elif post_file:
+            # minify image with PIL
             image.image = post_file
 
         else:

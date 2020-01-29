@@ -8,6 +8,8 @@ from friendship.models import Friend, FriendshipRequest, Follow, Block
 from address.graphql.types import AddressType
 from social.models import Post
 from social.graphql.types import PostType, FriendType, FriendshipRequestType, FollowType
+from system.models import Image
+from system.graphql.types import ImageType
 from .types import UserType, ProfileType
 from ..models import Profile
 
@@ -65,3 +67,12 @@ class GetAuthUserProfileQuery(ObjectType):
     def resolve_get_auth_user_profile(self, info):
         profile = info.context.user.profile
         return profile
+
+
+class GetAuthUserImages(ObjectType):
+    user_images = List(ImageType)
+
+    def resolve_user_images(self, info):
+        user = info.context.user
+        user_images = Image.objects.filter(user=user)
+        return user_images

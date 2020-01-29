@@ -33,6 +33,7 @@ def create_system_image(info, file=None, post_id=None):
 class UploadFiles(graphene.Mutation):
     success = graphene.Boolean()
     images = NonNull(List(NonNull(ImageType)))
+    post_id = String()
 
     class Arguments:
         files = Upload(required=True)
@@ -43,23 +44,11 @@ class UploadFiles(graphene.Mutation):
             images = []
             image = create_system_image(info, file, post_id)
             images = images.append(image)
-        return UploadFiles(success=True, images=images)
+        return UploadFiles(success=True, images=images, post_id=post_id)
 
 
-class UploadMutation(graphene.ObjectType):
-    uploadMutation = UploadFiles.Field()
-
-
-class UploadImageFromUrl(Mutation):
-    image = NonNull(ImageType)
-
-    class Arguments:
-        url = String()
-
-    @staticmethod
-    def mutate(root, info, url=None):
-        image = create_system_image(info, url)
-        return UploadImage(image=image)
+class UploadFilesMutation(graphene.ObjectType):
+    uploadFilesMutation = UploadFiles.Field()
 
 
 class DeleteImage(Mutation):

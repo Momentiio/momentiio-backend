@@ -10,6 +10,7 @@ from ..models import Post, Comment, Like
 
 class AddPost(graphene.Mutation):
     post = graphene.Field(PostType)
+    #files = graphene.Upload()
     errors = graphene.String()
 
     class Arguments:
@@ -26,6 +27,8 @@ class AddPost(graphene.Mutation):
             caption=caption,
             date_created=datetime.datetime.now()
         )
+        post.save()
+
         # post_image = create_system_image(info, photo, post.id)
 
         return AddPost(post=post, errors=None)
