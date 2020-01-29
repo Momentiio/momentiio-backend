@@ -172,6 +172,10 @@ COMPRESS_PRECOMPILERS = (
 
 COMPRESS_URL = '/static/'
 
+FILE_UPLOAD_HANDLERS = [
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+]
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = 'media/'
 

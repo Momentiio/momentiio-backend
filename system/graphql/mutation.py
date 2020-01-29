@@ -1,16 +1,20 @@
 import os
 import requests
 import graphene
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
+
 from graphene import Boolean, ID, List, Mutation, NonNull, String
 from graphene_file_upload.scalars import Upload
 from social.models import Post
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from .types import ImageType
-from ..models import Image
+from ..models import Image as ModelImage
 
 
-def create_system_image(info, url=None, file=None, post_id=None):
+def create_system_image(info, file=None, post_id=None):
     user = info.context.user
     if post_id:
         post = Post.objects.get(id=post_id)
@@ -18,42 +22,28 @@ def create_system_image(info, url=None, file=None, post_id=None):
         post = None
 
     if file:
-        open_file = file.open(0)
-        image_file = SimpleUploadedFile(
-            name=os.path.basename(open_file).split('?')[0],
-            content=requests.get(open_file).content
-        )
-
-    elif url:
-        image_file = SimpleUploadedFile(
-            name=os.path.basename(url).split('?')[0],
-            content=requests.get(url).content
-        )
-
-    else:
-        image_file = info.context.FILES['image_file']
-
-    image = Image.create_new(
-        user=user if not user.is_anonymous else None,
-        post_file=image_file,
-        process_jpeg=True,
-        post=post)
-
+        image = ModelImage.create_new(
+            user=user if not user.is_anonymous else None,
+            post_file=file,
+            process_jpeg=True,
+            post=post)
     return image
 
 
 class UploadFiles(graphene.Mutation):
     success = graphene.Boolean()
+    images = NonNull(List(NonNull(ImageType)))
 
     class Arguments:
         files = Upload(required=True)
         post_id = String()
 
     def mutate(self, info, files, post_id):
-        print(files)
         for file in files:
-            file = create_system_image(info, file, post_id)
-        return UploadFiles(success=True)
+            images = []
+            image = create_system_image(info, file, post_id)
+            images = images.append(image)
+        return UploadFiles(success=True, images=images)
 
 
 class UploadMutation(graphene.ObjectType):
