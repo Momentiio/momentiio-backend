@@ -13,7 +13,8 @@ class ImageType(DjangoObjectType):
             'id',
             'image_height',
             'image_width',
+            'uploaded_at'
         }
 
     def resolve_url(self, info):
-        return self.image.url
+        return Image.get_absolute_url(self)

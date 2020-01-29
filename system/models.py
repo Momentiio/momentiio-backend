@@ -1,11 +1,23 @@
 import os
 import datetime
 import PIL.Image as pil
+from io import BytesIO
+from django.core.files import File
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from social.models import Post
 from momentiio.storages import PrivateMediaStorage
+
+
+def compress(image):
+    im = pil.open(image)
+    im = im.convert('RGB')
+    im.save(image)
+    im_io = BytesIO()
+    im.save(im_io, "JPEG", quality=60)
+    new_image = File(im_io, name=image.name)
+    return new_image
 
 
 def image_path_generator(instance, filename):
@@ -41,7 +53,7 @@ class Image(models.Model):
         return f"{self.image}"
 
     def get_absolute_url(self):
-        return self.image.image.url
+        return self.image.url
 
     @classmethod
     def create_new(cls, user=None, post=None, post_file=None, localfilename=None,
@@ -61,8 +73,8 @@ class Image(models.Model):
                 image.post = post
 
         elif post_file:
-            # minify image with PIL
-            image.image = post_file
+            new_image = compress(post_file)
+            image.image = new_image
             image.post = post
 
         else:
