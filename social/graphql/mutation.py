@@ -15,8 +15,8 @@ class CreatePost(Mutation):
     errors = String()
 
     class Arguments:
-        post_media = Upload(required=True)
         caption = String()
+        post_media = Upload(required=True)
 
     def mutate(self, info, caption, post_media):
         user = info.context.user.profile
@@ -29,7 +29,7 @@ class CreatePost(Mutation):
             date_created=datetime.datetime.now()
         )
 
-        for file in media_files:
+        for file in post_media:
             image = create_system_image(info, file, post.id)
 
         post.save()
