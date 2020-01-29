@@ -63,6 +63,7 @@ class Image(models.Model):
         elif post_file:
             # minify image with PIL
             image.image = post_file
+            image.post = post
 
         else:
             raise ValueError("'post_file' or 'localfilename' is required")

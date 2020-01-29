@@ -60,11 +60,11 @@ class DeleteImage(Mutation):
     @staticmethod
     def mutate(root, info, id):
         try:
-            image = Image.objects.get(id=id)
+            image = ModelImage.objects.get(id=id)
             image.user = None
-            image.save()
+            image.delete()
             return DeleteImage(deleted=True)
-        except Image.DoesNotExist:
+        except ModelImage.DoesNotExist:
             return DeleteImage(deleted=False)
 
 
