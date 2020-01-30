@@ -1,9 +1,10 @@
 from django.contrib.auth import get_user_model, authenticate, login, logout
 import graphene
+from graphene import NonNull, List, Field, Mutation, ObjectType, String, Boolean, ID
 from rest_framework.authtoken.models import Token
 from graphql import GraphQLError
 from graphene_django import DjangoObjectType
-
+from graphene_file_upload.scalars import Upload
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 from interests.models import Interest
 from interests.graphql.types import InterestType
@@ -14,15 +15,15 @@ from .types import UserType, ProfileType
 from ..models import Profile
 
 
-class LoginUser(graphene.Mutation):
-    success = graphene.NonNull(graphene.Boolean)
-    account = graphene.Field(UserType)
-    token = graphene.String()
-    message = graphene.String()
+class LoginUser(Mutation):
+    success = NonNull(Boolean)
+    account = Field(UserType)
+    token = String()
+    message = String()
 
     class Arguments:
-        username = graphene.NonNull(graphene.String)
-        password = graphene.NonNull(graphene.String)
+        username = NonNull(String)
+        password = NonNull(String)
 
     @staticmethod
     def mutate(root, info, username, password):
@@ -34,12 +35,12 @@ class LoginUser(graphene.Mutation):
         return LoginUser(success=True, account=user, token=token)
 
 
-class LoginUserMutation(graphene.ObjectType):
+class LoginUserMutation(ObjectType):
     user_login = LoginUser.Field()
 
 
-class LogoutUser(graphene.Mutation):
-    success = graphene.NonNull(graphene.Boolean)
+class LogoutUser(Mutation):
+    success = NonNull(Boolean)
 
     class Arguments:
         pass
@@ -50,33 +51,33 @@ class LogoutUser(graphene.Mutation):
         return LogoutUser(success=True)
 
 
-class LogoutUserMutation(graphene.ObjectType):
+class LogoutUserMutation(ObjectType):
     user_logout = LogoutUser.Field()
 
 
-class LookUpUsername(graphene.Mutation):
-    is_taken = graphene.Boolean()
+class LookUpUsername(Mutation):
+    is_taken = Boolean()
 
     class Arguments:
-        username = graphene.String(required=True)
+        username = String(required=True)
 
     def mutate(self, info, username):
         is_taken = get_user_model().objects.filter(username=username)
         return LookUpUsername(is_taken=is_taken)
 
 
-class LookUpUsernameMutation(graphene.ObjectType):
+class LookUpUsernameMutation(ObjectType):
     lookup_username = LookUpUsername.Field()
 
 
-class CreateUser(graphene.Mutation):
-    user = graphene.Field(UserType)
-    token = graphene.String()
+class CreateUser(Mutation):
+    user = Field(UserType)
+    token = String()
 
     class Arguments:
-        username = graphene.String(required=True)
-        password = graphene.String(required=True)
-        email = graphene.String(required=True)
+        username = String(required=True)
+        password = String(required=True)
+        email = String(required=True)
 
     def mutate(self, info, username, password, email):
         username_taken = get_user_model().objects.filter(username=username)
@@ -96,15 +97,15 @@ class CreateUser(graphene.Mutation):
         return CreateUser(user=user, token=token)
 
 
-class CreateUserMutation(graphene.ObjectType):
+class CreateUserMutation(ObjectType):
     create_user = CreateUser.Field()
 
 
-class PauseAccount(graphene.Mutation):
-    is_active = graphene.Boolean()
+class PauseAccount(Mutation):
+    is_active = Boolean()
 
     class Arguments:
-        pause_account = graphene.Boolean()
+        pause_account = Boolean()
 
     def mutate(self, info, pause_account):
         user = info.context.user
@@ -117,12 +118,12 @@ class PauseAccount(graphene.Mutation):
         return PauseAccount(is_active=user.is_active)
 
 
-class PauseAccountMutation(graphene.ObjectType):
+class PauseAccountMutation(ObjectType):
     pause_account = PauseAccount.Field()
 
 
-class DeleteUser(graphene.Mutation):
-    user_deleted = graphene.Boolean()
+class DeleteUser(Mutation):
+    user_deleted = Boolean()
 
     def mutate(self, info):
         user = info.context.user
@@ -130,20 +131,20 @@ class DeleteUser(graphene.Mutation):
         return DeleteUser(user_deleted=True)
 
 
-class DeleteUserMutation(graphene.ObjectType):
+class DeleteUserMutation(ObjectType):
     delete_user = DeleteUser.Field()
 
 
-class UpdateUser(graphene.Mutation):
-    user = graphene.Field(UserType)
-    errors = graphene.String()
+class UpdateUser(Mutation):
+    user = Field(UserType)
+    errors = String()
 
     class Arguments:
-        username = graphene.String(required=False)
-        email = graphene.String(required=False)
-        first_name = graphene.String(required=False)
-        last_name = graphene.String(required=False)
-        phone_number = graphene.String(required=False)
+        username = String(required=False)
+        email = String(required=False)
+        first_name = String(required=False)
+        last_name = String(required=False)
+        phone_number = String(required=False)
 
     def mutate(self, info, username, email, first_name, last_name, phone_number):
         try:
@@ -164,15 +165,15 @@ class UpdateUser(graphene.Mutation):
         return UpdateUser(user=user, errors=None)
 
 
-class UpdateUserMutation(graphene.ObjectType):
+class UpdateUserMutation(ObjectType):
     update_user = UpdateUser.Field()
 
 
-class UploadProfileImage(graphene.Mutation):
-    profile_image = graphene.String()
+class UploadProfileImage(Mutation):
+    profile_image = ImageType
 
     class Arguments:
-        url = graphene.String()
+        image = Upload(required=True)
 
     @staticmethod
     def mutate(root, info, url=None):
@@ -182,26 +183,26 @@ class UploadProfileImage(graphene.Mutation):
                 'You must be logged in to change your profile image')
         else:
             user_profile = info.context.user.profile
-            image = create_system_image(info, url)
-            user_profile.profile_avatar = image.image
+            image = create_system_image(info, image, post=None)
+            user_profile.profile_avatar = image
             user_profile.save()
-            return UploadProfileImage(profile_image=image.image.url)
+            return UploadProfileImage(profile_image=image)
 
 
-class UploadProfileImageMutation(graphene.ObjectType):
+class UploadProfileImageMutation(ObjectType):
     upload_profile_image = UploadProfileImage.Field()
 
 
-class UpdateUserProfile(graphene.Mutation):
-    errors = graphene.String()
-    profile = graphene.Field(ProfileType)
+class UpdateUserProfile(Mutation):
+    errors = String()
+    profile = Field(ProfileType)
 
     class Arguments:
-        profile_avatar = graphene.String(required=False)
-        bio = graphene.String(required=False)
+        profile_avatar = Upload(required=False)
+        bio = String(required=False)
         birth_date = graphene.types.datetime.Date(required=False)
-        location = graphene.String(required=False)
-        interests = graphene.List(graphene.ID, required=False)
+        location = String(required=False)
+        interests = List(ID, required=False)
 
     def mutate(self, info, profile_avatar, bio, location, birth_date, interests):
         try:
@@ -210,7 +211,8 @@ class UpdateUserProfile(graphene.Mutation):
             return UpdateUserProfile(errors='Please Login')
         profile = user.profile
         if profile_avatar:
-            profile.profile_avatar = profile_avatar
+            avatar_image = create_system_image(info, profile_avatar, post=None)
+            profile.profile_avatar = avatar_image
         if bio:
             profile.bio = bio
         if location:
@@ -225,16 +227,16 @@ class UpdateUserProfile(graphene.Mutation):
         return UpdateUserProfile(profile=profile, errors=None)
 
 
-class UpdateUserProfileMutation(graphene.ObjectType):
+class UpdateUserProfileMutation(ObjectType):
     update_profile = UpdateUserProfile.Field()
 
 
-class UpdateUserInterests(graphene.Mutation):
-    interests = graphene.List(InterestType)
-    errors = graphene.String()
+class UpdateUserInterests(Mutation):
+    interests = List(InterestType)
+    errors = String()
 
     class Arguments:
-        ids = graphene.List(graphene.ID)
+        ids = List(ID)
 
     def mutate(self, info, ids):
         profile = info.context.user.profile
@@ -242,15 +244,15 @@ class UpdateUserInterests(graphene.Mutation):
         return UpdateUserInterests(interests=profile.interests.all(), errors=None)
 
 
-class UpdateUserInterestsMutation(graphene.ObjectType):
+class UpdateUserInterestsMutation(ObjectType):
     update_interests = UpdateUserInterests.Field()
 
 
-class UpdateLocation(graphene.Mutation):
-    location = graphene.String()
+class UpdateLocation(Mutation):
+    location = String()
 
     class Arguments:
-        location = graphene.String()
+        location = String()
 
     def mutate(self, info, location):
         user = info.context.user
@@ -260,20 +262,20 @@ class UpdateLocation(graphene.Mutation):
             profile.save()
             return UpdateLocation(location=profile.location)
         else:
-            raise graphene.GraphQlError(
+            raise GraphQlError(
                 'No User found please login to update your location')
 
 
-class UpdateLocationMutation(graphene.ObjectType):
+class UpdateLocationMutation(ObjectType):
     update_location = UpdateLocation.Field()
 
 
-class UpdatePrivacyPermission(graphene.Mutation):
-    is_private = graphene.Boolean()
-    errors = graphene.String()
+class UpdatePrivacyPermission(Mutation):
+    is_private = Boolean()
+    errors = String()
 
     class Arguments:
-        is_private = graphene.Boolean()
+        is_private = Boolean()
 
     def mutate(self, info, is_private):
         user = info.context.user
@@ -285,16 +287,16 @@ class UpdatePrivacyPermission(graphene.Mutation):
             return UpdatePrivacyPermission(errors="User not found, please login or create an account")
 
 
-class UpdatePrivacyMutation(graphene.ObjectType):
+class UpdatePrivacyMutation(ObjectType):
     update_privacy_status = UpdatePrivacyPermission.Field()
 
 
-class UpdateHiddenPermission(graphene.Mutation):
-    is_hidden = graphene.Boolean()
-    errors = graphene.String()
+class UpdateHiddenPermission(Mutation):
+    is_hidden = Boolean()
+    errors = String()
 
     class Arguments:
-        is_hidden = graphene.Boolean()
+        is_hidden = Boolean()
 
     def mutate(self, info, is_hidden):
         user = info.context.user
@@ -306,17 +308,17 @@ class UpdateHiddenPermission(graphene.Mutation):
             return UpdateHiddenPermission(errors="User not found, please login or create an account")
 
 
-class UpdateHiddenMutation(graphene.ObjectType):
+class UpdateHiddenMutation(ObjectType):
     update_hidden_status = UpdateHiddenPermission.Field()
 
 # Friendship Mutations
 
 
-class CreateFriendRequest(graphene.Mutation):
-    friendship_request = graphene.Field(FriendshipRequestType)
+class CreateFriendRequest(Mutation):
+    friendship_request = Field(FriendshipRequestType)
 
     class Arguments:
-        friend_id = graphene.ID()
+        friend_id = ID()
 
     def mutate(self, info, friend_id):
         user = info.context.user
@@ -330,16 +332,16 @@ class CreateFriendRequest(graphene.Mutation):
         return CreateFriendRequest(friendship_request=FriendshipRequest.objects.get(to_user=friend))
 
 
-class CreateFriendRequestMutation(graphene.ObjectType):
+class CreateFriendRequestMutation(ObjectType):
     create_friend_request = CreateFriendRequest.Field()
 
 
-class AddFriend(graphene.Mutation):
-    new_friend = graphene.Field(UserType)
-    errors = graphene.String()
+class AddFriend(Mutation):
+    new_friend = Field(UserType)
+    errors = String()
 
     class Arguments:
-        friend_id = graphene.ID()
+        friend_id = ID()
 
     def mutate(self, info, friend_id):
         user = info.context.user
@@ -360,16 +362,16 @@ class AddFriend(graphene.Mutation):
             return AddFriend(errors="This user is private, We have created a friendship request for you")
 
 
-class AddFriendMutation(graphene.ObjectType):
+class AddFriendMutation(ObjectType):
     add_friend = AddFriend.Field()
 
 
-class RemoveFriend(graphene.Mutation):
-    success = graphene.Boolean()
-    errors = graphene.String()
+class RemoveFriend(Mutation):
+    success = Boolean()
+    errors = String()
 
     class Arguments:
-        friend_id = graphene.ID()
+        friend_id = ID()
 
     def mutate(self, info, friend_id):
         user = info.context.user
@@ -381,17 +383,17 @@ class RemoveFriend(graphene.Mutation):
         return RemoveFriend(success=True)
 
 
-class RemoveFriendMutation(graphene.ObjectType):
+class RemoveFriendMutation(ObjectType):
     remove_friend = RemoveFriend.Field()
 
 
-class AcceptFriendRequest(graphene.Mutation):
-    new_friend = graphene.Field(UserType)
-    accepted = graphene.Boolean()
-    errors = graphene.String()
+class AcceptFriendRequest(Mutation):
+    new_friend = Field(UserType)
+    accepted = Boolean()
+    errors = String()
 
     class Arguments:
-        id = graphene.String()
+        id = String()
 
     def mutate(self, info, id):
         user = info.context.user
@@ -407,15 +409,15 @@ class AcceptFriendRequest(graphene.Mutation):
                 friend, user) == True, errors=None)
 
 
-class AcceptFriendRequestMutation(graphene.ObjectType):
+class AcceptFriendRequestMutation(ObjectType):
     accept_friend_request = AcceptFriendRequest.Field()
 
 
-class CancelFriendRequest(graphene.Mutation):
-    friend_requests = graphene.List(FriendshipRequestType)
+class CancelFriendRequest(Mutation):
+    friend_requests = List(FriendshipRequestType)
 
     class Arguments:
-        friend_id = graphene.ID()
+        friend_id = ID()
 
     def mutate(self, info, friend_id):
         try:
@@ -430,16 +432,16 @@ class CancelFriendRequest(graphene.Mutation):
             return CancelFriendRequest(friend_requests=Friend.objects.unrejected_requests(user=user))
 
 
-class CancelFriendRequestMutation(graphene.ObjectType):
+class CancelFriendRequestMutation(ObjectType):
     cancel_friend_request = CancelFriendRequest.Field()
 
 
-class DeclineFriendRequest(graphene.Mutation):
-    friend_requests = graphene.List(FriendshipRequestType)
-    errors = graphene.String()
+class DeclineFriendRequest(Mutation):
+    friend_requests = List(FriendshipRequestType)
+    errors = String()
 
     class Arguments:
-        friend_id = graphene.ID()
+        friend_id = ID()
 
     def mutate(self, info, friend_id):
         try:
@@ -455,5 +457,5 @@ class DeclineFriendRequest(graphene.Mutation):
             return DeclineFriendRequest(errors="user no longer exists")
 
 
-class DeclineFriendRequestMutation(graphene.ObjectType):
+class DeclineFriendRequestMutation(ObjectType):
     decline_friend_request = DeclineFriendRequest.Field()
