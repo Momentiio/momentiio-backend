@@ -14,18 +14,23 @@ from .types import ImageType
 from ..models import Image as ModelImage
 
 
-def create_system_image(info, file=None, post_id=None):
+def create_system_image(info, file=None, post_id=None, image_filter=None):
     user = info.context.user
     if post_id:
         post = Post.objects.get(id=post_id)
     else:
         post = None
+    if image_filter:
+        img_filter = Filter.objects.get(name=image_filter)
+    else:
+        img_filter = None
 
     if file:
         image = ModelImage.create_new(
             user=user if not user.is_anonymous else None,
             post_file=file,
             process_jpeg=True,
+            image_filter=img_filter,
             post=post)
     return image
 
