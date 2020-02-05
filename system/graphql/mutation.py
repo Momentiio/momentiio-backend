@@ -11,17 +11,27 @@ from social.models import Post
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from .types import ImageType
-from ..models import Image as ModelImage
+from ..models import Image as ModelImage, Filter
 
 
 def create_system_image(info, file=None, post_id=None, image_filter=None):
     user = info.context.user
     if post_id:
-        post = Post.objects.get(id=post_id)
+        try:
+            post = Post.objects.get(id=post_id)
+            return post
+        except post.DoesNotExist:
+            raise graphene.GraphQLError(f"{post_id} does not belong to a post")
     else:
         post = None
+
     if image_filter:
-        img_filter = Filter.objects.get(name=image_filter)
+        try:
+            img_filter = Filter.objects.get(name=image_filter)
+        except img_filter.DoesNotExist:
+            raise graphene.GraphQLError(
+                f"{image_filter} does not exist as an image filter in the database")
+        return img_filter
     else:
         img_filter = None
 

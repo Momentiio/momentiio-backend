@@ -61,21 +61,26 @@ class UserType(DjangoObjectType):
 
 
 class ProfileType(DjangoObjectType):
+    user_id = String()
     username = String()
     full_name = String()
     posts = List(PostType)
     followers = List(UserType)
     following = List(UserType)
-    profileAvatar = String()
 
     class Meta:
         model = Profile
+        only_fields = {
+            'id',
+            'bio',
+            'location',
+            'birth_date',
+            'interests',
+            'profile_avatar'
+        }
 
-    def resolve_profile_avatar(self, info):
-        if self.profile.profile_avatar:
-            return self.profile.profile_avatar.url
-        else:
-            return self.profile.profile_avatar
+    def resolve_user_id(self, info):
+        return self.user.id
 
     def resolve_username(self, info):
         return self.user.username
