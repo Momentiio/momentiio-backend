@@ -7,7 +7,6 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from social.models import Post
-from momentiio.storages import PrivateMediaStorage
 
 
 def compress(image):

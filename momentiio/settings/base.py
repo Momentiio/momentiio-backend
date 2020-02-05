@@ -52,7 +52,7 @@ PROJECT_APPS = (
     'invites',
     'social',
     'system',
-    'user',
+    'user'
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
@@ -193,9 +193,10 @@ AWS_S3_OBJECT_PARAMETERS = {
 AWS_STATIC_LOCATION = 'static'
 STATICFILES_STORAGE = 'momentiio.storages.StaticStorage'
 STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
+
 AWS_PUBLIC_MEDIA_LOCATION = 'media/public'
-DEFAULT_FILE_STORAGE = 'momentiio.storages.PublicMediaStorage'
 AWS_PRIVATE_MEDIA_LOCATION = 'media/private'
+DEFAULT_FILE_STORAGE = 'momentiio.storages.PublicMediaStorage'
 PRIVATE_FILE_STORAGE = 'momentiio.storage.PrivateMediaStorage'
 
 # Email
