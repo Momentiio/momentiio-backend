@@ -54,7 +54,7 @@ class Image(models.Model):
     image = models.ImageField(upload_to=image_path_generator,
                               height_field="image_height", width_field="image_width")
     image_filter = models.ForeignKey(
-        Filter, related_name="filter", null=True, on_delete=models.SET_NULL)
+        Filter, related_name="image_filter", null=True, on_delete=models.SET_NULL)
     post = models.ForeignKey(
         Post, related_name="post_images", null=True, on_delete=models.SET_NULL)
     user = models.ForeignKey(

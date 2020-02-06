@@ -25,22 +25,21 @@ def create_system_image(info, file=None, post_id=None, image_filter=None):
     else:
         post = None
 
-    if image_filter:
-        try:
-            img_filter = Filter.objects.get(name=image_filter)
-            return img_filter
-        except img_filter.DoesNotExist:
-            raise graphene.GraphQLError(
-                f"{image_filter} does not exist as an image filter in the database")
-    else:
-        img_filter = None
+    # if image_filter:
+    #     try:
+    #         img_filter = Filter.objects.get(name=image_filter)
+    #         return img_filter
+    #     except img_filter.DoesNotExist:
+    #         raise graphene.GraphQLError(
+    #             f"{image_filter} does not exist as an image filter in the database")
+    # else:
+    #     img_filter = None
 
     if file:
         image = ModelImage.create_new(
             user=user if not user.is_anonymous else None,
             post_file=file,
             process_jpeg=True,
-            image_filter=img_filter,
             post=post)
     return image
 
