@@ -28,10 +28,10 @@ def create_system_image(info, file=None, post_id=None, image_filter=None):
     if image_filter:
         try:
             img_filter = Filter.objects.get(name=image_filter)
+            return img_filter
         except img_filter.DoesNotExist:
             raise graphene.GraphQLError(
                 f"{image_filter} does not exist as an image filter in the database")
-        return img_filter
     else:
         img_filter = None
 
