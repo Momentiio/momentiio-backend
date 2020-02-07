@@ -17,7 +17,11 @@ from ..models import Image as ModelImage
 def create_system_image(info, file=None, post_id=None):
     user = info.context.user
     if post_id:
-        post = Post.objects.get(id=post_id)
+        try:
+            post = Post.objects.get(id=post_id)
+            return post
+        except post.DoesNotExist:
+            raise graphene.GraphQLError(f"{post_id} does not belong to a post")
     else:
         post = None
 
@@ -69,5 +73,4 @@ class DeleteImage(Mutation):
 
 
 class ImageMutation(object):
-    # upload_image = UploadMutation.Field()
     delete_image = DeleteImage.Field()

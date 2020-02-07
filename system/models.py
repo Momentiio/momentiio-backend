@@ -7,7 +7,6 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from social.models import Post
-from momentiio.storages import PrivateMediaStorage
 
 
 def compress(image):
@@ -83,3 +82,14 @@ class Image(models.Model):
         image.save()
 
         return image
+
+
+class ImageFilter(models.Model):
+    name = models.CharField(max_length=25)
+    filter = models.CharField(max_length=100, null=True)
+    background = models.CharField(max_length=250, null=True)
+    opacity = models.CharField(max_length=5, null=True)
+    blend_mode = models.CharField(max_length=250, null=True)
+
+    def __str__(self):
+        return f"{self.name}"

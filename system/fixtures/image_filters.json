@@ -1,0 +1,222 @@
+[
+  {
+    "model": "system.imagefilter",
+    "pk": 1,
+    "fields": {
+      "name": "original",
+      "filter": "initial",
+      "background": "initial",
+      "opacity": "1",
+      "blend_mode": "none"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 2,
+    "fields": {
+      "name": "1977",
+      "filter": "contrast(110%) brightness(110%) saturate(130%)",
+      "background": "rgba(243, 106, 188, 0.3)",
+      "opacity": "1",
+      "blend_mode": "screen"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 3,
+    "fields": {
+      "name": "Aden",
+      "filter": "contrast(90%) brightness(120%) saturate(85%) hue-rotate(20deg)",
+      "background": "linear-gradient(to right, rgba(66, 10, 14, 0.2) 1, rgba(66, 10, 14, 0))",
+      "opacity": "1",
+      "blend_mode": "darken"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 4,
+    "fields": {
+      "name": "Amaro",
+      "filter": "contrast(90%) brightness(110%) saturate(150%) hue-rotate(-10deg)",
+      "background": "initial",
+      "opacity": "1",
+      "blend_mode": "none"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 5,
+    "fields": {
+      "name": "Brannan",
+      "filter": "contrast(140%) sepia(50%)",
+      "background": "rgba(161, 44, 199, 0.31)",
+      "opacity": "light",
+      "blend_mode": "initial"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 6,
+    "fields": {
+      "name": "Brooklyn",
+      "filter": "contrast(90%) brightness(110%)",
+      "background": "radial-gradient(50% 50%, circle closest-corner, rgba(168, 223, 193, 0.4) 1, rgba(183, 196, 200, 0.2))",
+      "opacity": "1",
+      "blend_mode": "overlay"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 7,
+    "fields": {
+      "name": "Clarendon",
+      "filter": "contrast(120%) saturate(125%)",
+      "background": "rgba(127, 187, 227, 0.2)",
+      "opacity": "1",
+      "blend_mode": "overlay"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 8,
+    "fields": {
+      "name": "Earlybird",
+      "filter": "contrast(90%) sepia(20%)",
+      "background": "radial-gradient(50% 50%, circle closest-corner, rgba(208, 186, 142, 1) 20, rgba(29, 2, 16, 0.2))",
+      "opacity": "1",
+      "blend_mode": "overlay"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 9,
+    "fields": {
+      "name": "Gingham",
+      "filter": "brightness(105%) hue-rotate(350deg)",
+      "background": "linear-gradient(to right, rgba(66, 10, 14, 0.2) 1, rgba(0, 0, 0, 0))",
+      "opacity": "1",
+      "blend_mode": "darken"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 10,
+    "fields": {
+      "name": "Hudson",
+      "filter": "contrast(90%) brightness(120%) saturate(110%)",
+      "background": "radial-gradient(50% 50%, circle closest-corner, rgba(255, 177, 166, 1) 50, rgba(52, 33, 52, 1))",
+      "opacity": "0.5",
+      "blend_mode": "multiply"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 11,
+    "fields": {
+      "name": "Inkwell",
+      "filter": "contrast(110%) brightness(110%) sepia(30%) grayscale(100%)",
+      "background": "rgba(0, 0, 0, 0)",
+      "opacity": "1",
+      "blend_mode": "initial"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 12,
+    "fields": {
+      "name": "Lofi",
+      "filter": "contrast(150%) saturate(110%)",
+      "background": "radial-gradient(50% 50%, circle closest-corner, rgba(0, 0, 0, 0) 70, rgba(34, 34, 34, 1))",
+      "opacity": "1",
+      "blend_mode": "multiply"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 13,
+    "fields": {
+      "name": "Maven",
+      "filter": "contrast(95%) brightness(95%) saturate(150%) sepia(25%)",
+      "background": "rgba(3, 230, 26, 0.2)",
+      "opacity": "1",
+      "blend_mode": "hue"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 14,
+    "fields": {
+      "name": "Perpetua",
+      "filter": "none",
+      "background": "linear-gradient(to bottom, rgba(0, 91, 154, 1) 1, rgba(61, 193, 230, 0))",
+      "opacity": "0.5",
+      "blend_mode": "soft-light"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 15,
+    "fields": {
+      "name": "Reyes",
+      "filter": "contrast(85%) brightness(110%) saturate(75%) sepia(22%)",
+      "background": "rgba(173, 205, 239, 1)",
+      "opacity": "0.5",
+      "blend_mode": "soft-light"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 16,
+    "fields": {
+      "name": "Stinson",
+      "filter": "contrast(75%) brightness(115%) saturate(85%)",
+      "background": "rgba(240, 149, 128, 0.2)",
+      "opacity": "1",
+      "blend_mode": "soft-light"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 17,
+    "fields": {
+      "name": "Toaster",
+      "filter": "contrast(150%) brightness(90%)",
+      "background": "radial-gradient(50% 50%, circle closest-corner, rgba(15, 78, 128, 1) 1, rgba(59, 0, 59, 1))",
+      "opacity": "0.5",
+      "blend_mode": "screen"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 18,
+    "fields": {
+      "name": "Walden",
+      "filter": "brightness(110%) saturate(160%) sepia(30%) hue-rotate(350deg)",
+      "background": "rgba(204, 68, 0, 1)",
+      "opacity": "0.3",
+      "blend_mode": "screen"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 19,
+    "fields": {
+      "name": "Valencia",
+      "filter": "contrast(108%) brightness(108%) sepia(8%)",
+      "background": "rgba(58, 3, 57, 1)",
+      "opacity": "0.5",
+      "blend_mode": "exclusion"
+    }
+  },
+  {
+    "model": "system.imagefilter",
+    "pk": 20,
+    "fields": {
+      "name": "Xpro2",
+      "filter": "sepia(30%)",
+      "background": "radial-gradient(50% 50%, circle closest-corner, rgba(224, 231, 230, 1) 40, rgba(43, 42, 161, 0.6))",
+      "opacity": "1",
+      "blend_mode": "color-burn"
+    }
+  }
+]
