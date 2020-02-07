@@ -173,17 +173,17 @@ class UploadProfileImage(Mutation):
     profile_image = Field(ImageType)
 
     class Arguments:
-        file = Upload(required=True)
+        profile_image = Upload(required=True)
 
     @staticmethod
-    def mutate(root, info, file):
+    def mutate(root, info, profile_image):
         user = info.context.user
         if user.is_anonymous:
             raise graphql.GraphqlError(
                 'You must be logged in to change your profile image')
         else:
             user_profile = info.context.user.profile
-            image = create_system_image(info, file, post_id=None)
+            image = create_system_image(info, profile_image, post_id=None)
             user_profile.profile_avatar = image
             user_profile.save()
             return UploadProfileImage(profile_image=user_profile.profile_avatar)
@@ -198,20 +198,21 @@ class UpdateUserProfile(Mutation):
     profile = Field(ProfileType)
 
     class Arguments:
-        avatar_file = Upload(required=False)
+        avatar_image = Upload(required=False)
         bio = String(required=False)
         birth_date = graphene.types.datetime.Date(required=False)
         location = String(required=False)
         interests = List(ID, required=False)
 
-    def mutate(self, info, avatar_file, bio, location, birth_date, interests):
+    def mutate(self, info, avatar_image, bio, location, birth_date, interests):
         try:
             user = info.context.user
         except get_user_model().DoesNotExist:
             return UpdateUserProfile(errors='Please Login')
         profile = user.profile
-        image = create_system_image(info, avatar_file, post_id=None)
-        user_profile.profile_avatar = image
+        if avatar_image:
+            image = create_system_image(info, avatar_image, post_id=None)
+            user_profile.profile_avatar = image
         if bio:
             profile.bio = bio
         if location:

@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 
 import graphene
 from graphene_django import DjangoObjectType
+from graphene_file_upload.scalars import Upload
+
 from user.graphql.types import UserType
 from system.graphql.mutation import create_system_image
 from .types import InviteType
@@ -19,10 +21,14 @@ class CreateInvite(graphene.Mutation):
         email = graphene.String(required=False)
         phone = graphene.String(required=False)
         note = graphene.String(required=False)
-        avatar = graphene.String(required=False)
+        avatar_image = Upload(required=False)
 
-    def mutate(self, info, first_name, last_name, email, phone, note, avatar):
+    def mutate(self, info, first_name, last_name, email, phone, note, avatar_image):
         sponsor = info.context.user
+        if avatar_image:
+            avatar = create_system_image(info, avatar_image, post_id=None)
+        else:
+            avatar = None
         invite = Invite.objects.create(
             token=secrets.token_urlsafe(20),
             first_name=first_name,
@@ -72,9 +78,9 @@ class UpdateInvite(graphene.Mutation):
         last_name = graphene.String()
         email = graphene.String()
         phone_number = graphene.String()
-        avatar = graphene.String()
+        avatar_image = Upload(required=False)
 
-    def mutate(self, info, invite_id, first_name, last_name, email, phone_number, avatar):
+    def mutate(self, info, invite_id, first_name, last_name, email, phone_number, avatar_image):
         try:
             invite = Invite.objects.get(id=invite_id)
         except invite.DoesNotExist:
@@ -87,8 +93,9 @@ class UpdateInvite(graphene.Mutation):
             invite.email = email
         if phone_number:
             invite.phone_number = phone_number
-        if avatar:
-            invite.avatar = avatar
+        if avatar_image:
+            image = create_system_image(info, avatar_image, post_id=None)
+            invite.avatar = image
         invite.save()
         return UpdateInvite(invite=invite)
 
