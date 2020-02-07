@@ -47,15 +47,10 @@ class UpdatePost(Mutation):
 
     class Arguments:
         post_id = ID()
-        photo = String(required=False)
         caption = String(required=False)
 
-    def mutate(self, info, post_id, photo, caption):
+    def mutate(self, info, post_id, caption):
         post = Post.objects.get(id=post_id)
-        if photo:
-            post_image = create_system_image(info, photo, post_id)
-        else:
-            post.photo = post.photo
         if caption:
             post.caption = caption
         else:
