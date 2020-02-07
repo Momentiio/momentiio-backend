@@ -1,15 +1,15 @@
 from graphene import NonNull, Field, String, List, Int, ID
 from graphene_django import DjangoObjectType
 from django.core.validators import URLValidator
-from ..models import Image, Filter
+from ..models import Image, ImageFilter
 
 
 class ImageFilterType(DjangoObjectType):
     class Meta:
-        model = Filter
+        model = ImageFilter
         only_fields = {
             'name',
-            'image_filter',
+            'filter',
             'background',
             'blend_mode',
             'opacity'

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from.models import Image, Filter
+from.models import Image, ImageFilter
 
-admin.site.register(Filter)
+admin.site.register(ImageFilter)
 admin.site.register(Image)

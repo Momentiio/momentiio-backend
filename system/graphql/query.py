@@ -2,12 +2,12 @@ import graphene
 from django.db import models
 from graphene import Field, List, Int, ID, NonNull, ObjectType
 from graphene_django import DjangoObjectType
-from ..models import Filter
+from ..models import ImageFilter
 from .types import ImageFilterType
 
 
-class ImageFiltersQuery(ObjectType):
+class ImageFilterQuery(ObjectType):
     image_filters = NonNull(List(ImageFilterType))
 
     def resolve_image_filters(self, info):
-        return Filter.objects.all()
+        return ImageFilter.objects.all()

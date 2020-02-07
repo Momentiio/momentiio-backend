@@ -11,10 +11,10 @@ from social.models import Post
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from .types import ImageType
-from ..models import Image as ModelImage, Filter
+from ..models import Image as ModelImage
 
 
-def create_system_image(info, file=None, post_id=None, image_filter=None):
+def create_system_image(info, file=None, post_id=None):
     user = info.context.user
     if post_id:
         try:
@@ -24,16 +24,6 @@ def create_system_image(info, file=None, post_id=None, image_filter=None):
             raise graphene.GraphQLError(f"{post_id} does not belong to a post")
     else:
         post = None
-
-    # if image_filter:
-    #     try:
-    #         img_filter = Filter.objects.get(name=image_filter)
-    #         return img_filter
-    #     except img_filter.DoesNotExist:
-    #         raise graphene.GraphQLError(
-    #             f"{image_filter} does not exist as an image filter in the database")
-    # else:
-    #     img_filter = None
 
     if file:
         image = ModelImage.create_new(
@@ -83,5 +73,4 @@ class DeleteImage(Mutation):
 
 
 class ImageMutation(object):
-    # upload_image = UploadMutation.Field()
     delete_image = DeleteImage.Field()

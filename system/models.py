@@ -37,29 +37,15 @@ def image_path_generator(instance, filename):
     ).lower()
 
 
-class Filter(models.Model):
-    name = models.CharField(max_length=25)
-    image_filter = models.CharField(max_length=100, null=True)
-    background = models.CharField(max_length=250, null=True)
-    opacity = models.CharField(max_length=5, null=True)
-    blend_mode = models.CharField(max_length=250, null=True)
-
-    def __str__(self):
-        return f"{self.name}"
-
-
 class Image(models.Model):
     image_height = models.IntegerField(default=0)
     image_width = models.IntegerField(default=0)
     image = models.ImageField(upload_to=image_path_generator,
                               height_field="image_height", width_field="image_width")
-    image_filter = models.ForeignKey(
-        Filter, related_name="image_filter", null=True, on_delete=models.SET_NULL)
     post = models.ForeignKey(
         Post, related_name="post_images", null=True, on_delete=models.SET_NULL)
     user = models.ForeignKey(
         get_user_model(), related_name='user_images', on_delete=models.CASCADE)
-
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -96,3 +82,14 @@ class Image(models.Model):
         image.save()
 
         return image
+
+
+class ImageFilter(models.Model):
+    name = models.CharField(max_length=25)
+    filter = models.CharField(max_length=100, null=True)
+    background = models.CharField(max_length=250, null=True)
+    opacity = models.CharField(max_length=5, null=True)
+    blend_mode = models.CharField(max_length=250, null=True)
+
+    def __str__(self):
+        return f"{self.name}"
