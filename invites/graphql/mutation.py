@@ -1,11 +1,10 @@
 import secrets
 from django.db import models
 from django.contrib.auth import get_user_model
-
+from graphql import GraphQLError
 import graphene
 from graphene_django import DjangoObjectType
 from graphene_file_upload.scalars import Upload
-
 from user.graphql.types import UserType
 from system.graphql.mutation import create_system_image
 from .types import InviteType
@@ -23,12 +22,21 @@ class CreateInvite(graphene.Mutation):
         note = graphene.String(required=False)
         avatar_image = Upload(required=False)
 
-    def mutate(self, info, first_name, last_name, email, phone, note, avatar_image):
+    def mutate(self, info, first_name, last_name, email, phone, note):
         sponsor = info.context.user
-        if avatar_image:
-            avatar = create_system_image(info, avatar_image, post_id=None)
+        users = get_user_model().objects.all()
+        for user in users:
+            if user.email == email:
+                raise GraphQLError('This email already has an account')
+            elif user.phone_number == phone:
+                raise GraphQLError(
+                    'This phone number is already attached to an account')
+            else:
+                pass
+
         else:
             avatar = None
+
         invite = Invite.objects.create(
             token=secrets.token_urlsafe(20),
             first_name=first_name,
