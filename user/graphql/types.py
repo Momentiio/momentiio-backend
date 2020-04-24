@@ -4,6 +4,7 @@ from graphene import Field, List, String
 from graphene_django import DjangoObjectType
 from friendship.models import Follow, Friend
 
+
 from address.graphql.types import AddressType
 from address.models import Address
 from invites.graphql.types import InviteType
