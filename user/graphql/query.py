@@ -62,7 +62,7 @@ class GetFriendRequests(ObjectType):
         if not user.is_authenticated:
             raise Exception('Please login to see friend requests')
         else:
-            return Friend.objects.unread_requests(user=user)
+            return Friend.objects.unrejected_requests(user=user)
 
 
 class GetUserProfileQuery(ObjectType):
