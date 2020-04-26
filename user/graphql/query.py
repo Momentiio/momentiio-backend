@@ -54,6 +54,17 @@ class GetAuthUserQuery(ObjectType):
         return user
 
 
+class GetFriendRequests(ObjectType):
+    get_friend_requests = List(FriendshipRequestType)
+
+    def resolve_get_friend_requests(self, info):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise Exception('Please login to see friend requests')
+        else:
+            return Friend.objects.unread_requests(user=user)
+
+
 class GetUserProfileQuery(ObjectType):
     get_user_profile = Field(ProfileType, username=String())
 
