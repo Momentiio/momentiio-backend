@@ -2,6 +2,7 @@ Django==2.2.10
 boto==2.48.0
 boto3==1.7.3
 dj-database-url==0.4.2
+django-allauth==0.41.0
 django-cors-headers==2.4.0
 django-countries==5.3.1
 django-compressor==2.2

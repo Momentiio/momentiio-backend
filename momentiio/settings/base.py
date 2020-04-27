@@ -21,6 +21,19 @@ THIRD_PARTY_APPS = (
     'orderable',
     'rest_framework',
     'rest_framework.authtoken',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # Enabled All Auth Providers :
+    'allauth.socialaccount.providers.facebook',
+    # 'allauth.socialaccount.providers.flickr',
+    # 'allauth.socialaccount.providers.google',
+    # 'allauth.socialaccount.providers.instagram',
+    # 'allauth.socialaccount.providers.linkedin',
+    # 'allauth.socialaccount.providers.linkedin_oauth2',
+    # 'allauth.socialaccount.providers.pinterest',
+    # 'allauth.socialaccount.providers.tumblr',
+    # 'allauth.socialaccount.providers.twitter',
 )
 
 DJANGO_APPS = (
@@ -28,6 +41,7 @@ DJANGO_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
 )
@@ -59,6 +73,7 @@ MIDDLEWARE = [
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 ROOT_URLCONF = f'{SITE_NAME}.urls'
@@ -200,4 +215,26 @@ AUTH_USER_MODEL = 'user.UserModel'
 
 
 # User Invite Settings
-INVITE_USER_EXPIRATION = 12
+INVITE_USER_EXPIRATION = 14
+
+# Django-Allauth Settings
+ACCOUNT_USER_MODEL_USERNAME_FIELD = os.environ.get(
+    'ACCOUNT_USER_MODEL_USERNAME_FIELD')
+ACCOUNT_EMAIL_REQUIRED = os.environ.get('ACCOUNT_EMAIL_REQUIRED')
+ACCOUNT_USERNAME_REQUIRED = os.environ.get('ACCOUNT_USERNAME_REQUIRED')
+ACCOUNT_AUTHENTICATION_METHOD = os.environ.get('ACCOUNT_AUTHENTICATION_METHOD')
+
+SOCIALACCOUNT_PROVIDERS = {
+    'facebook': {
+        'METHOD': os.environ.get('FACEBOOK_METHOD'),
+        'SDK_URL': os.environ.get('FACEBOOK_SDK_URL'),
+        'SCOPE': os.environ.get('FACEBOOK_SCOPE'),
+        'AUTH_PARAMS': os.environ.get('FACEBOOK_AUTH_PARAMS'),
+        'INIT_PARAMS': os.environ.get('FACEBOOK_INIT_PARAMS'),
+        'FIELDS': os.environ.get('FACEBOOK_FIELDS'),
+        'EXCHANGE_TOKEN': os.environ.get('FACEBOOK_EXCHANGE_TOKEN'),
+        'LOCALE_FUNC': os.environ.get('FACEBOOK_PATH_TO_LOCALE_FUNC'),
+        'VERIFIED_EMAIL': os.environ.get('FACEBOOK_VERIFIED_EMAIL'),
+        'VERSION': os.environ.get('FACEBOOK_VERSION'),
+    }
+}
