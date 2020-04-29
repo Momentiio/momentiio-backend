@@ -54,6 +54,7 @@ PROJECT_APPS = (
     'interests',
     'invites',
     'social',
+    'socialauth',
     'system',
     'user'
 )
@@ -81,7 +82,7 @@ ROOT_URLCONF = f'{SITE_NAME}.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR)],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -93,6 +94,8 @@ TEMPLATES = [
         },
     },
 ]
+
+SITE_ID = 1
 
 WSGI_APPLICATION = f'{SITE_NAME}.wsgi.application'
 
