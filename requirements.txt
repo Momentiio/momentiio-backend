@@ -13,6 +13,7 @@ django_orderable==6.0.1
 django_phonenumber_field==3.0.1
 django-redis==4.7.0
 djangorestframework==3.9.2
+django-graphql-social-auth==0.1.4
 django-storages[boto3]==1.6.6
 gevent==1.2.2
 greenlet==0.4.13
@@ -26,6 +27,7 @@ phonenumbers==8.11.1
 pillow==6.2.0
 postgres==2.2.1
 requests==2.21.0
+social-auth-app-django==3.1.0
 whitenoise==3.3.0
 psycogreen==1.0
 psycopg2==2.7.3.1

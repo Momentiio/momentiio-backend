@@ -20,7 +20,7 @@ class CreateInvite(graphene.Mutation):
         email = graphene.String(required=False)
         phone = graphene.String(required=False)
         note = graphene.String(required=False)
-        avatar_image = Upload(required=False)
+        # avatar_image = Upload(required=False)
 
     def mutate(self, info, first_name, last_name, email, phone, note):
         sponsor = info.context.user
@@ -44,7 +44,7 @@ class CreateInvite(graphene.Mutation):
             email=email,
             phone_number=phone,
             note=note,
-            avatar=avatar,
+            # avatar=avatar,
             sponsor=sponsor.id,
         )
         invite.save()

@@ -48,7 +48,8 @@ class LogoutUser(Mutation):
     @staticmethod
     def mutate(root, info):
         logout(info.context)
-        return LogoutUser(success=True)
+        info.context = None
+        return LogoutUser(success=info.context == None)
 
 
 class LogoutUserMutation(ObjectType):
