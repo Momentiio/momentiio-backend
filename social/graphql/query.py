@@ -53,4 +53,4 @@ class FeedQuery(ObjectType):
 
     def resolve_feed(self, info):
         friends = Friend.objects.friends(info.context.user)
-        return Post.objects.filter(user__user__in=friends)
+        return Post.objects.filter(user__user__in=friends).order_by('-date_created')
