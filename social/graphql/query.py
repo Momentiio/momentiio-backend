@@ -36,15 +36,10 @@ class GetPostLikesQuery(ObjectType):
         return likes.distinct()[offset:offset+limit]
 
 
-# GetPostLikesCount
-
-
 class PostsQuery(ObjectType):
     posts = NonNull(List(PostType))
-    # Depricated: Replace with auth_user Friend list posts
 
     def resolve_posts(self, info):
-
         return Post.objects.all()
 
 

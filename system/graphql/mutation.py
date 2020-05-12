@@ -19,9 +19,8 @@ def create_system_image(info, file=None, post_id=None):
     if post_id:
         try:
             post = Post.objects.get(id=post_id)
-            return post
         except post.DoesNotExist:
-            raise graphene.GraphQLError(f"{post_id} does not belong to a post")
+            raise graphene.GraphQLError(f"{post_id} does not exist")
     else:
         post = None
 

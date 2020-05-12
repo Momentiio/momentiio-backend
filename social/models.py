@@ -14,7 +14,7 @@ class Post(BaseModel):
     date_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user}'s Post on {self.date_created}"
+        return f"{self.user}'s Post {self.id} on {self.date_created}"
 
     class Meta:
         """Metadata."""
