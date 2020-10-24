@@ -18,8 +18,8 @@ class Address(models.Model):
         get_user_model(), blank=False, on_delete=models.PROTECT, related_name="user_address")
 
     def __str__(self):
-        return "%s, %s %s" % (self.city, self.state_province,
-                              str(self.country))
+        return "%s,%s, %s %s" % (self.id, self.city, self.state_province,
+                                 str(self.country))
 
     class Meta:
         verbose_name_plural = "Addresses"
