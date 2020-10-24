@@ -18,6 +18,7 @@ class AddressType(DjangoObjectType):
     class Meta:
         model = Address
         only_fields = {
+            "id",
             "address_line1",
             "address_line2",
             "postal_code",
